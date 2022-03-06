@@ -1,6 +1,7 @@
 package com.example.walksolo
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,6 +14,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
     private lateinit var layout: View
+    private lateinit var navigateIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,8 +30,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
-                //open up google maps options
-                showErrorMessage("Need to open maps!")
+                navigateIntent = Intent(this, MapsActivity::class.java)
+                startActivity(navigateIntent)
             }
             R.id.aroundme -> {
                 showErrorMessage("Please tell me what's around me.")
