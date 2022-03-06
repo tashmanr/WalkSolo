@@ -69,7 +69,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             map.isMyLocationEnabled = true
         } else {
             // Permission to access the location is missing. Show rationale and request permission
-            requestPermission(this, MapsActivity.LOCATION_PERMISSION_REQUEST_CODE,
+            requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
                 Manifest.permission.ACCESS_FINE_LOCATION, true
             )
         }
