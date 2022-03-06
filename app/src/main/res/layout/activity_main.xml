@@ -5,25 +5,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/coordinatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical"/>
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="216dp"
-        android:layout_height="148dp"
-        android:text="Navigate"
-        android:textSize="30dp"
-        android:contentDescription="Navigate Button"
-        tools:layout_editor_absoluteX="97dp"
-        tools:layout_editor_absoluteY="198dp" />
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="216dp"
-        android:layout_height="148dp"
-        android:text="Around Me"
-        android:textSize="30dp"
-        android:contentDescription="Around Me Button"
-        tools:layout_editor_absoluteX="97dp"
-        tools:layout_editor_absoluteY="395dp" />
+        <Button
+            android:id="@+id/navigate"
+            android:layout_width="216dp"
+            android:layout_height="148dp"
+            android:contentDescription="Navigate Button"
+            android:text="Navigate"
+            android:textSize="30dp"
+            android:layout_marginTop="150dip"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/aroundme"
+            android:layout_width="216dp"
+            android:layout_height="148dp"
+            android:contentDescription="Around Me Button"
+            android:text="Around Me"
+            android:textSize="30dp"
+            android:layout_marginTop="400dip"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
