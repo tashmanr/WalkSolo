@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         layout = findViewById(R.id.coordinatorLayout)
     }
 
-    //function that waits for connect button to be pressed when pressed will tell viewmodel to tell model to attempt to open a socket and connect to FlightGear
+    //function that waits for a button to be pressed when pressed will execute the following code
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
