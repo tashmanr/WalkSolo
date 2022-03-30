@@ -18,13 +18,16 @@ import PermissionUtils.requestPermission
 import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
-
+//import android.bluetooth.BluetoothManager
+//import android.bluetooth.BluetoothAdapter
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
     private lateinit var layout: View
     private lateinit var navigateIntent: Intent
+    private var btScanGranted: Boolean = false
+    private var btConnectGranted: Boolean = false
 
     companion object{
         private const val BT_SCAN_REQUEST_CODE = 100
@@ -41,6 +44,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
+    @SuppressLint("MissingPermission")
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
@@ -49,7 +53,24 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             R.id.aroundme -> {
                 enableBluetooth()
-                showErrorMessage("Please tell me what's around me.")
+                /*
+                var bluetoothManager:BluetoothManager = this.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+                var bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
+                var outp:String = bluetoothAdapter.name
+                Toast.makeText(this,outp,Toast.LENGTH_SHORT).show(
+                showErrorMessage(outp)*/
+                if (btConnectGranted && btScanGranted){
+                    showErrorMessage("btConnect and btScan Granted")
+                }
+                else if (btConnectGranted){
+                    showErrorMessage("only connect granted")
+                }
+                else if (btScanGranted){
+                    showErrorMessage("only scan granted")
+                }
+                else{
+                    showErrorMessage("nothing was granted")
+                }
             }
         }
     }
@@ -96,6 +117,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 )
             ) {
                 // the permission has been granted.
+                btScanGranted = true
                 Toast.makeText(this,"permission BT SCAN is enabled",Toast.LENGTH_SHORT).show()
             } else {
                 // Permission was denied. Display an error message
@@ -110,6 +132,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 )
             ) {
                 // the permission has been granted.
+                btConnectGranted = true
                 Toast.makeText(this,"permission BT CONNECT is enabled",Toast.LENGTH_SHORT).show()
             } else {
                 // Permission was denied. Display an error message
