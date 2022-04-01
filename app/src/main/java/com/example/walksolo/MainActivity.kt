@@ -17,6 +17,7 @@ import PermissionUtils.isPermissionGranted
 import PermissionUtils.requestPermission
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.pm.PackageManager
 import android.widget.Toast
@@ -28,10 +29,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var aroundMeButton: Button
     private lateinit var layout: View
     private lateinit var navigateIntent: Intent
-    private var btScanGranted: Boolean = false
-    private var btConnectGranted: Boolean = false
+    private var bluetoothIsEnabled: Boolean = false
 
     private var m_bluetoothAdapter: BluetoothAdapter ?= null
+    private lateinit var m_pairedDevices: Set<BluetoothDevice>
 
     companion object{
         private const val REQUEST_ENABLE_BT = 1
@@ -56,26 +57,47 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 startActivity(navigateIntent)
             }
             R.id.aroundme -> {
-                showErrorMessage("going to enableBT")
                 enableBluetooth()
+                if(bluetoothIsEnabled){
+                    showErrorMessage("in if")
+                    pairedDeviceList()
+                }
+
             }
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun enableBluetooth(){
-        showErrorMessage("in enableBT")
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if(m_bluetoothAdapter == null) {
             showErrorMessage("this device doesn't support bluetooth")
             return
         }
         if(!m_bluetoothAdapter!!.isEnabled) {
-            showErrorMessage("second if 222222")
-            showErrorMessage("going to ask permission")
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BT)
         }
+        else{
+            bluetoothIsEnabled = true
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun pairedDeviceList(){
+        m_pairedDevices = m_bluetoothAdapter!!.bondedDevices
+        val list: ArrayList<BluetoothDevice> = ArrayList()
+
+        if(!m_pairedDevices.isEmpty()){
+            for (device: BluetoothDevice in m_pairedDevices) {
+                list.add(device)
+                showErrorMessage(device.name)
+            }
+        }
+        else{
+            showErrorMessage("no paired devices found")
+        }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -84,6 +106,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == Activity.RESULT_OK) {
                 if (m_bluetoothAdapter!!.isEnabled) {
+                    bluetoothIsEnabled = true
                     showErrorMessage("Bluetooth has been enabled")
                 } else {
                     showErrorMessage("Bluetooth has been disabled")
