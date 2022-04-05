@@ -5,12 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        android:orientation="vertical"/>
+        android:orientation="vertical">
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -35,6 +38,18 @@
             android:textSize="30dp"
             android:layout_marginTop="400dip"
             android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/aroundme"
+            android:layout_marginTop="100dip"
+            android:layout_marginEnd="14dp"
+            android:text="Status"
+            android:textSize="14sp"
+            android:textStyle="italic" />
+
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
