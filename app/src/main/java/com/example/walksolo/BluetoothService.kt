@@ -4,13 +4,15 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
-import java.io.InputStream
-import java.io.OutputStream
-import android.os.Handler
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.nio.charset.Charset
 import java.util.*
+
 
 class BluetoothService(handler: Handler) {
 
@@ -44,6 +46,18 @@ class BluetoothService(handler: Handler) {
     }
 
     /**
+     * Update UI title according to the current state of the chat connection
+     */
+    @Synchronized private fun updateStatusTitle() {
+        mState = getState()
+        Log.d(TAG, "updateStatusTitle() $mNewState -> $mState")
+        mNewState = mState
+
+        // Give the new state to the Handler so the UI Activity can update
+        mHandler!!.obtainMessage(Constants.MESSAGE_STATE_CHANGE, mNewState, -1).sendToTarget()
+    }
+
+    /**
      * Return the current connection state.
      */
     @Synchronized fun getState(): Int {
@@ -73,7 +87,7 @@ class BluetoothService(handler: Handler) {
         // Start the thread to connect with the given device
         mConnectThread = ConnectThread(device)
         mConnectThread?.start()
-
+        updateStatusTitle()
     }
 
     /**
@@ -108,6 +122,7 @@ class BluetoothService(handler: Handler) {
         if (msg != null) {
             mHandler?.sendMessage(msg)
         }
+        updateStatusTitle()
     }
 
     /**
@@ -125,6 +140,7 @@ class BluetoothService(handler: Handler) {
         }
 
         mState = STATE_NONE
+        updateStatusTitle()
     }
 
     /**
@@ -279,24 +295,66 @@ class BluetoothService(handler: Handler) {
 
         override fun run() {
             Log.i(TAG, "BEGIN mConnectedThread")
-            val buffer = ByteArray(1024)
+            var buffer: ByteArray = ByteArray(0)
             var bytes: Int
+            var newMsg: Boolean = true
+            var numberOfBytes: String
+            var bytesToReceive: Int = 287827
+            var bytesReceived: Int = 0
 
             // Keep listening to the InputStream while connected
             while (mState == STATE_CONNECTED) {
-                try {
-                    // Read from the InputStream
-                    bytes = mmInStream?.read(buffer) ?: 0
+                try{
+                    // image size is always 287827
+                    if(newMsg){
+                        buffer = ByteArray(0)
+                        bytesReceived = 0
+                        newMsg = false
+                    }
+                    else{
+                        var data = ByteArray(mmInStream!!.available())
+                        val received: Int = mmInStream.read(data)
 
-                    // Send the obtained bytes to the UI Activity
-                    mHandler?.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
-                        ?.sendToTarget()
-                } catch (e: IOException) {
+                        buffer += data
+                        System.arraycopy(data, 0, buffer, bytesReceived, received)
+                        bytesReceived += received
+
+                        if (bytesReceived == bytesToReceive) {
+                            newMsg = true
+                            mHandler?.obtainMessage(Constants.MESSAGE_READ, 1, -1, buffer)
+                                ?.sendToTarget()
+                        }
+                    }
+                    """
+                    if(newMsg){
+                        // get size of picture
+                        var temp = ByteArray(mmInStream!!.available())
+                        if (mmInStream.read(temp) > 0) {
+                            numberOfBytes = String(temp)
+                            bytesToReceive = numberOfBytes.toInt()
+                            newMsg = false
+                        }
+
+                    }
+                    else{
+                        var data = ByteArray(mmInStream!!.available())
+                        val received: Int = mmInStream.read(data)
+
+                        buffer += data
+                        System.arraycopy(data, 0, buffer, bytesReceived, received)
+                        bytesReceived += received
+
+                        if (bytesReceived == bytesToReceive) {
+                            newMsg = true
+                            mHandler?.obtainMessage(Constants.MESSAGE_READ, 1, -1, buffer)
+                                ?.sendToTarget()
+                        }
+                    }"""
+                }catch (e: IOException) {
                     Log.e(TAG, "disconnected", e)
                     connectionLost()
                     break
                 }
-
             }
         }
 

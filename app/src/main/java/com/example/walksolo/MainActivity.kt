@@ -58,8 +58,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 Constants.MESSAGE_WRITE -> {
                     val writeBuf = msg.obj as ByteArray
                     // construct a string from the buffer
-                    val writeMessage = String(writeBuf)
-                    showErrorMessage(writeMessage)
+                    """val writeMessage = String(writeBuf)"""
+                    showErrorMessage("Received Image")
                 }
                 Constants.MESSAGE_READ -> {
                     val readBuf = msg.obj as ByteArray
@@ -86,6 +86,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         layout = findViewById(R.id.coordinatorLayout)
         status = findViewById(R.id.status)
         mBluetoothService = BluetoothService(handler)
+        enableBluetooth()
+        if (bluetoothIsEnabled){
+            checkDeviceList()
+            if (pairedRaspberryPi != null){
+                mBluetoothService?.connect(pairedRaspberryPi)
+
+            }
+        }
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
@@ -97,12 +105,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 startActivity(navigateIntent)
             }
             R.id.aroundme -> {
-                enableBluetooth()
                 if(bluetoothIsEnabled){
-                    showErrorMessage("in if")
                     checkDeviceList()
                     if (pairedRaspberryPi != null){
-                        mBluetoothService?.connect(pairedRaspberryPi)
+                        if(mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED){
+                            status.setText("In if State not connected")
+                            showErrorMessage("Not Connected")
+                        }
+                        val send = "1".toByteArray()
+                        mBluetoothService?.write(send)
+
                         // TODO check if already connected
                         //mConnectToDeviceThread = ConnectToDeviceThread()
                         //mConnectToDeviceThread!!.start()
