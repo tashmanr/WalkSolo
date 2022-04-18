@@ -7,14 +7,12 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.graphics.Color
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -76,6 +74,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -94,6 +93,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             }
         }
+        GoogleVisionAPIHandler.trial();
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
