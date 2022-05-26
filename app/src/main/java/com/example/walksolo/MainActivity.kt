@@ -1,11 +1,14 @@
 package com.example.walksolo
 
+import PermissionUtils.requestPermission
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.*
 import android.util.Log
@@ -14,6 +17,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
@@ -33,22 +37,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var navigateIntent: Intent
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
-    companion object{
+    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
+
+    companion object {
         private const val REQUEST_ENABLE_BT = 1
-        var pairedRaspberryPi: BluetoothDevice ?= null
-        var m_bluetoothAdapter: BluetoothAdapter ?= null
+        var pairedRaspberryPi: BluetoothDevice? = null
+        var m_bluetoothAdapter: BluetoothAdapter? = null
         lateinit var m_pairedDevices: Set<BluetoothDevice>
         var bluetoothIsEnabled: Boolean = false
     }
 
-    val handler = object: Handler(Looper.getMainLooper()){
+    val handler = object : Handler(Looper.getMainLooper()) {
 
+        @SuppressLint("SetTextI18n")
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 Constants.MESSAGE_STATE_CHANGE -> {
                     when (msg.arg1) {
                         BluetoothService.STATE_CONNECTED -> {
-                            status.setText("Connected")
+                            status.text = "Connected"
                             connected = true
                         }
                     }
@@ -56,17 +63,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 Constants.MESSAGE_WRITE -> {
                     val writeBuf = msg.obj as ByteArray
                     // construct a string from the buffer
-                    """val writeMessage = String(writeBuf)"""
+                    //"""val writeMessage = String(writeBuf)"""
                     showErrorMessage("Received Image")
                 }
                 Constants.MESSAGE_READ -> {
+                    // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
+                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
                     val readMessage = String(readBuf, 0, msg.arg1)
                     showErrorMessage(readMessage)
                 }
                 Constants.MESSAGE_TOAST -> {
-                    status.setText("not_connected")
+                    status.text = "not_connected"
                     connected = false
                 }
             }
@@ -86,9 +95,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         status = findViewById(R.id.status)
         mBluetoothService = BluetoothService(handler)
         enableBluetooth()
-        if (bluetoothIsEnabled){
+        if (bluetoothIsEnabled) {
             checkDeviceList()
-            if (pairedRaspberryPi != null){
+            if (pairedRaspberryPi != null) {
                 mBluetoothService?.connect(pairedRaspberryPi)
 
             }
@@ -97,7 +106,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "SetTextI18n")
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
@@ -105,11 +114,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 startActivity(navigateIntent)
             }
             R.id.aroundme -> {
-                if(bluetoothIsEnabled){
+                if (bluetoothIsEnabled) {
                     checkDeviceList()
-                    if (pairedRaspberryPi != null){
-                        if(mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED){
-                            status.setText("In if State not connected")
+                    if (pairedRaspberryPi != null) {
+                        if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
+                            status.text = "In if State not connected"
                             showErrorMessage("Not Connected")
                         }
                         val send = "1".toByteArray()
@@ -126,34 +135,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     @SuppressLint("MissingPermission")
-    private fun enableBluetooth(){
+    private fun enableBluetooth() {
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        if(m_bluetoothAdapter == null) {
+        if (m_bluetoothAdapter == null) {
             showErrorMessage("this device doesn't support bluetooth")
             return
         }
-        if(!m_bluetoothAdapter!!.isEnabled) {
+        if (!m_bluetoothAdapter!!.isEnabled) {
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BT)
-        }
-        else{
+        } else {
             bluetoothIsEnabled = true
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun checkDeviceList(){
+    private fun checkDeviceList() {
         m_pairedDevices = m_bluetoothAdapter!!.bondedDevices
 
-        if(!m_pairedDevices.isEmpty()){
+        if (!m_pairedDevices.isEmpty()) {
             for (device: BluetoothDevice in m_pairedDevices) {
-                if (device.name.equals("raspberrypi", ignoreCase = true)){
+                if (device.name.equals("raspberrypi", ignoreCase = true)) {
                     pairedRaspberryPi = device
                     break
                 }
             }
-        }
-        else{
+        } else {
             showErrorMessage("no paired devices found")
             return
         }
