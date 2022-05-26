@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             }
         }
-        GoogleVisionAPIHandler.trial();
+//        GoogleVisionAPIHandler.trial();
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
