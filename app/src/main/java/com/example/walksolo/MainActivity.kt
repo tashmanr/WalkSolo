@@ -1,29 +1,20 @@
 package com.example.walksolo
 
-import PermissionUtils.requestPermission
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.*
-import android.util.Log
+import android.os.StrictMode.ThreadPolicy
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.util.*
 
 
 //import android.bluetooth.BluetoothManager
@@ -47,7 +38,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         var bluetoothIsEnabled: Boolean = false
     }
 
-    val handler = object : Handler(Looper.getMainLooper()) {
+    private val handler = object : Handler(Looper.getMainLooper()) {
 
         @SuppressLint("SetTextI18n")
         override fun handleMessage(msg: Message) {
@@ -71,8 +62,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     val readBuf = msg.obj as ByteArray
                     val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
-                    val readMessage = String(readBuf, 0, msg.arg1)
-                    showErrorMessage(readMessage)
+//                    val readMessage = String(readBuf, 0, msg.arg1)
+//                    showErrorMessage(readMessage)
+//                    Trial().detectLocalizedObjects(path)
+                    callVisionAPI(path)
+                    showErrorMessage("Becca!")
                 }
                 Constants.MESSAGE_TOAST -> {
                     status.text = "not_connected"
@@ -81,6 +75,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
 
+    }
+
+    fun callVisionAPI(path: String){
+        val policy = ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        //Trial().detectLocalizedObjects(path)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
