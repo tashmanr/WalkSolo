@@ -32,7 +32,8 @@ import com.example.walksolo.R
 object PermissionUtils {
     /**
      * Requests the fine location permission. If a rationale with an additional explanation should
-     * be shown to the user, displays a dialog that triggers the request.
+     * be shown to the user, displays a dialog that trigg
+     * ers the request.
      */
     @JvmStatic
     fun requestPermission(
