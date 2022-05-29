@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "404644799177",
+    "project_id": "walksolo",
+    "storage_bucket": "walksolo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404644799177:android:02cd1e65c0473a0fb8a318",
+        "android_client_info": {
+          "package_name": "com.example.walksolo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "404644799177-lcak95imo7tcuiecr8lu4iag6ojshp4v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.walksolo",
+            "certificate_hash": "d1685c09ab24a74e38a10b2aefa46d22e67e4b29"
+          }
+        },
+        {
+          "client_id": "404644799177-mqgj8gl9i4rt35pnfbi06cgsrrt6hfj8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1YgPx8t2ko8TJ8C_VTfReFFwa5KW3kdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "404644799177-mqgj8gl9i4rt35pnfbi06cgsrrt6hfj8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

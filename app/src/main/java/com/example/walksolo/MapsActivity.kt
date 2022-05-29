@@ -7,48 +7,35 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.android.volley.Request
 import com.android.volley.Response
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.walksolo.BuildConfig.MAPS_API_KEY
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.example.walksolo.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.location.LocationServices.getFusedLocationProviderClient
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import org.json.JSONObject
-import android.os.Looper
-
-import com.google.android.gms.location.LocationResult
-
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationServices.getFusedLocationProviderClient
-
-import com.google.android.gms.location.SettingsClient
-
-import com.google.android.gms.location.LocationSettingsRequest
-
-
-
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     GoogleMap.OnMarkerClickListener
 //    GoogleMap.OnMyLocationButtonClickListener,
 //    GoogleMap.OnMyLocationClickListener,
-    //ActivityCompat.OnRequestPermissionsResultCallback {
+//ActivityCompat.OnRequestPermissionsResultCallback {
 {
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
@@ -138,8 +125,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         if (!::map.isInitialized) return
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
         ) {
             map.isMyLocationEnabled = true
         } else {

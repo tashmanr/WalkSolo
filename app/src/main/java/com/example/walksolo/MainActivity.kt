@@ -60,13 +60,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 Constants.MESSAGE_READ -> {
                     // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
-                    val path = mImageSaver.saveImage(readBuf)
+//                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
-//                    val readMessage = String(readBuf, 0, msg.arg1)
-//                    showErrorMessage(readMessage)
-//                    Trial().detectLocalizedObjects(path)
-                    callVisionAPI(path)
-                    showErrorMessage("Becca!")
+                    callVisionAPI(readBuf)
+                    showErrorMessage("Got back from API call!")
                 }
                 Constants.MESSAGE_TOAST -> {
                     status.text = "not_connected"
@@ -77,10 +74,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    fun callVisionAPI(path: String){
+    fun callVisionAPI(imageArray: ByteArray){
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-        //Trial().detectLocalizedObjects(path)
+        GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -102,7 +99,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             }
         }
-//        GoogleVisionAPIHandler.trial();
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
