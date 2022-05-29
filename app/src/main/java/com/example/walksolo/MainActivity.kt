@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //                    val readMessage = String(readBuf, 0, msg.arg1)
 //                    showErrorMessage(readMessage)
 //                    Trial().detectLocalizedObjects(path)
-                    callVisionAPI(path)
+                   // callVisionAPI(path)
                     showErrorMessage("Becca!")
                 }
                 Constants.MESSAGE_TOAST -> {
@@ -122,6 +122,24 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             showErrorMessage("Not Connected")
                         }
                         val send = "1".toByteArray()
+                        mBluetoothService?.write(send)
+
+                        // TODO check if already connected
+                        //mConnectToDeviceThread = ConnectToDeviceThread()
+                        //mConnectToDeviceThread!!.start()
+                        //mConnectedThread!!.write("Hello".toByteArray())
+                    }
+                }
+            }
+            R.id.aroundme -> {
+                if (bluetoothIsEnabled) {
+                    checkDeviceList()
+                    if (pairedRaspberryPi != null) {
+                        if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
+                            status.text = "In if 2 State not connected"
+                            showErrorMessage("Not Connected")
+                        }
+                        val send = "2".toByteArray()
                         mBluetoothService?.write(send)
 
                         // TODO check if already connected
