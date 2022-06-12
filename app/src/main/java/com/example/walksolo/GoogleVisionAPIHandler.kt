@@ -11,7 +11,7 @@ import java.io.IOException
 class GoogleVisionAPIHandler {
     fun detectLocalizedObjects(imageArray: ByteArray) {
         try {
-            var visionBuilder = Vision.Builder(
+            val visionBuilder = Vision.Builder(
                     NetHttpTransport(),
                     AndroidJsonFactory(),
                     null
@@ -20,10 +20,10 @@ class GoogleVisionAPIHandler {
             visionBuilder.setVisionRequestInitializer(
                     VisionRequestInitializer()
             )
-            var vision = visionBuilder.build()
+            val vision = visionBuilder.build()
             val inputImage = Image().setContent(imageArray.toString())
             val desiredFeature = Feature().setType("LABEL_DETECTION")
-            var featuresList: ArrayList<Feature> = ArrayList()
+            val featuresList: ArrayList<Feature> = ArrayList()
             featuresList.add(desiredFeature)
             val request = AnnotateImageRequest().setImage(inputImage).setFeatures(featuresList)
             println(request.toPrettyString())
