@@ -1,5 +1,7 @@
 package com.example.walksolo
 
+import android.util.Base64
+import com.example.walksolo.BuildConfig.MAPS_API_KEY
 import com.google.api.client.extensions.android.json.AndroidJsonFactory
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.services.vision.v1.Vision
@@ -21,17 +23,15 @@ class GoogleVisionAPIHandler {
                     VisionRequestInitializer()
             )
             val vision = visionBuilder.build()
-            val inputImage = Image().setContent(imageArray.toString())
-            val desiredFeature = Feature().setType("LABEL_DETECTION")
+            val inputImage = Image().setContent(Base64.encodeToString(imageArray, Base64.DEFAULT))
+            val desiredFeature = Feature().setType("LABEL_DETECTION").setMaxResults(10)
             val featuresList: ArrayList<Feature> = ArrayList()
             featuresList.add(desiredFeature)
             val request = AnnotateImageRequest().setImage(inputImage).setFeatures(featuresList)
             println(request.toPrettyString())
             val batchRequest = BatchAnnotateImagesRequest().setRequests(listOf(request))
-            val annotate: Vision.Images.Annotate = vision.images().annotate(batchRequest)
+            val annotate: Vision.Images.Annotate = vision.images().annotate(batchRequest).setKey(MAPS_API_KEY)
             val batchResponse: BatchAnnotateImagesResponse = annotate.execute()
-//            annotate.setDisableGZipContent(true).execute()
-            println("yay2")
             println(batchResponse.toPrettyString())
         } catch (e: IOException) {
             println("Image annotation failed:")

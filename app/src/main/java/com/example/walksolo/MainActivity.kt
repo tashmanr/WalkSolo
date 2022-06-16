@@ -11,7 +11,6 @@ import android.os.StrictMode.ThreadPolicy
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -81,7 +80,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
