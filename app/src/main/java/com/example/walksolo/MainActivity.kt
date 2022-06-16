@@ -14,12 +14,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-
+import android.speech.tts.TextToSpeech
+import java.util.*
 
 //import android.bluetooth.BluetoothManager
 //import android.bluetooth.BluetoothAdapter
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener {
     private lateinit var status: TextView
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
     private var mImageSaver: ImageSaver = ImageSaver(this, 0)
+    private var tts: TextToSpeech? = null
 
     companion object {
         private const val REQUEST_ENABLE_BT = 1
@@ -70,14 +72,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         }
-
     }
 
     fun callVisionAPI(imageArray: ByteArray) {
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val response = GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
-        notifyHazard(VisionsResponseHandler().processResponse(response))
+        val result = VisionsResponseHandler().processResponse(response)
+        //notifyHazard(VisionsResponseHandler().processResponse(response))
+        notifyHazard(result)
+        // maybe change to TextToSpeech.QUEUE_ADD
+        tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null,"")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,6 +104,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 mBluetoothService?.connect(pairedRaspberryPi)
 
             }
+        }
+        // TextToSpeech(Context: this, OnInitListener: this)
+        tts = TextToSpeech(this, this)
+    }
+
+    // Required func for initiating text To speech
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts!!.setLanguage(Locale.US)
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                showErrorMessage("TTS - The Language not supported!")
+            }
+        }
+        else {
+            showErrorMessage("TTS - Initilization Failed!")
         }
     }
 
