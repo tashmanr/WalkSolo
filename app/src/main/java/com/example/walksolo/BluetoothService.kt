@@ -299,7 +299,7 @@ class BluetoothService(handler: Handler) {
             var bytes: Int
             var newMsg: Boolean = true
             var numberOfBytes: String
-            var bytesToReceive: Int = 287827
+            var bytesToReceive: Int = 318118
             var bytesReceived: Int = 0
 
             // Keep listening to the InputStream while connected
