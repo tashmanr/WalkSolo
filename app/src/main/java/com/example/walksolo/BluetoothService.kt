@@ -10,7 +10,6 @@ import android.util.Log
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.Charset
 import java.util.*
 
 
@@ -299,7 +298,7 @@ class BluetoothService(handler: Handler) {
             var bytes: Int
             var newMsg: Boolean = true
             var numberOfBytes: String
-            var bytesToReceive: Int = 318118
+            var bytesToReceive: Int = 353290//318118
             var bytesReceived: Int = 0
 
             // Keep listening to the InputStream while connected

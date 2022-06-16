@@ -24,7 +24,7 @@ class GoogleVisionAPIHandler {
             )
             val vision = visionBuilder.build()
             val inputImage = Image().setContent(Base64.encodeToString(imageArray, Base64.DEFAULT))
-            val desiredFeature = Feature().setType("LABEL_DETECTION").setMaxResults(2)
+            val desiredFeature = Feature().setType("OBJECT_LOCALIZATION").setMaxResults(100)
             val featuresList: ArrayList<Feature> = ArrayList()
             featuresList.add(desiredFeature)
             val request = AnnotateImageRequest().setImage(inputImage).setFeatures(featuresList)

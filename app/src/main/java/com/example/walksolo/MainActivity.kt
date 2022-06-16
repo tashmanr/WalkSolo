@@ -206,7 +206,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             .setBackgroundTint(Color.GRAY).show()
     }
 
-    //function for showing the appropriate error message depending upon the error
+    //function for showing the incoming hazard message
     @SuppressLint("ShowToast")
     fun notifyHazard(s: String) {
         Snackbar.make(layout, "Caution: $s ahead of you!", Snackbar.LENGTH_SHORT)
