@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var status: TextView
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
+    private lateinit var notifyMeButton: Button
     private lateinit var layout: View
     private lateinit var navigateIntent: Intent
     private var connected: Boolean = false
@@ -88,6 +89,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         navigateButton.setOnClickListener(this)
         aroundMeButton = findViewById(R.id.aroundme)
         aroundMeButton.setOnClickListener(this)
+        notifyMeButton = findViewById(R.id.notify_me)
+        notifyMeButton.setOnClickListener(this)
         layout = findViewById(R.id.coordinatorLayout)
         status = findViewById(R.id.status)
         mBluetoothService = BluetoothService(handler)
@@ -127,7 +130,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
             }
-            R.id.aroundme -> {
+            R.id.notify_me -> {
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
