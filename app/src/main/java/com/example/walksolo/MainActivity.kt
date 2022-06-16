@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 //                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
                     callVisionAPI(readBuf)
-                    showErrorMessage("Got back from API call!")
                 }
                 Constants.MESSAGE_TOAST -> {
                     status.text = "not_connected"
@@ -74,10 +73,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
-    fun callVisionAPI(imageArray: ByteArray){
+    fun callVisionAPI(imageArray: ByteArray) {
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
-        GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
+        val response = GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
+        notifyHazard(VisionsResponseHandler().processResponse(response))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -204,5 +204,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Snackbar.make(layout, s, Snackbar.LENGTH_SHORT)
             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
             .setBackgroundTint(Color.GRAY).show()
+    }
+
+    //function for showing the appropriate error message depending upon the error
+    @SuppressLint("ShowToast")
+    fun notifyHazard(s: String) {
+        Snackbar.make(layout, s, Snackbar.LENGTH_SHORT)
+            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
+            .setActionTextColor(Color.WHITE)
+            .setBackgroundTint(Color.BLACK).show()
     }
 }

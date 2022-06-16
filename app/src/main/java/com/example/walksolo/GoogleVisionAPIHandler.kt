@@ -11,31 +11,31 @@ import java.io.IOException
 
 
 class GoogleVisionAPIHandler {
-    fun detectLocalizedObjects(imageArray: ByteArray) {
+    fun detectLocalizedObjects(imageArray: ByteArray):BatchAnnotateImagesResponse {
         try {
             val visionBuilder = Vision.Builder(
-                    NetHttpTransport(),
-                    AndroidJsonFactory(),
-                    null
+                NetHttpTransport(),
+                AndroidJsonFactory(),
+                null
             ).setApplicationName("WalkSolo")
 
             visionBuilder.setVisionRequestInitializer(
-                    VisionRequestInitializer()
+                VisionRequestInitializer()
             )
             val vision = visionBuilder.build()
             val inputImage = Image().setContent(Base64.encodeToString(imageArray, Base64.DEFAULT))
-            val desiredFeature = Feature().setType("LABEL_DETECTION").setMaxResults(10)
+            val desiredFeature = Feature().setType("LABEL_DETECTION").setMaxResults(2)
             val featuresList: ArrayList<Feature> = ArrayList()
             featuresList.add(desiredFeature)
             val request = AnnotateImageRequest().setImage(inputImage).setFeatures(featuresList)
-            println(request.toPrettyString())
             val batchRequest = BatchAnnotateImagesRequest().setRequests(listOf(request))
-            val annotate: Vision.Images.Annotate = vision.images().annotate(batchRequest).setKey(MAPS_API_KEY)
-            val batchResponse: BatchAnnotateImagesResponse = annotate.execute()
-            println(batchResponse.toPrettyString())
+            val annotate: Vision.Images.Annotate =
+                vision.images().annotate(batchRequest).setKey(MAPS_API_KEY)
+            return annotate.execute()
         } catch (e: IOException) {
             println("Image annotation failed:")
             println(e.message)
+            return BatchAnnotateImagesResponse()
         }
     }
 }
