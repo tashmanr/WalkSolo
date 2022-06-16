@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     //function for showing the appropriate error message depending upon the error
     @SuppressLint("ShowToast")
     fun notifyHazard(s: String) {
-        Snackbar.make(layout, s, Snackbar.LENGTH_SHORT)
+        Snackbar.make(layout, "Caution: $s ahead of you!", Snackbar.LENGTH_SHORT)
             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
             .setActionTextColor(Color.WHITE)
             .setBackgroundTint(Color.BLACK).show()
