@@ -6,10 +6,10 @@ import java.net.URL
 
 
 class GoogleDirectionsAPIHandler {
-    fun getDirections(origin: String, destination: String) {
+    fun getDirections(origin: String, destination: String): String? {
         // Create OkHttp Client
         val client: OkHttpClient = OkHttpClient()
-        val result = mapsHttpRequest(getRequestUrl(origin, destination), client)
+        return mapsHttpRequest(getRequestUrl(origin, destination), client)
     }
 
     private fun mapsHttpRequest(sUrl: String, client: OkHttpClient): String? {

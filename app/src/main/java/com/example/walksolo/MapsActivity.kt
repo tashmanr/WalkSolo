@@ -6,6 +6,7 @@ import PermissionUtils.requestPermission
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.os.StrictMode
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +20,10 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.PolylineOptions
+import com.google.maps.android.PolyUtil
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
@@ -31,6 +35,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private var locationRequest: LocationRequest? = null
     private val UPDATE_INTERVAL = (10 * 1000 /* 10 secs */).toLong()
     private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
+    private lateinit var path: List<LatLng>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +47,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         fusedLocationClient = getFusedLocationProviderClient(this)
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
-        GoogleDirectionsAPIHandler().getDirections("The White House", "Capital Hill")
     }
 
     // Trigger new location updates at interval
@@ -78,6 +80,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         map.uiSettings.isZoomControlsEnabled = true
         map.setOnMarkerClickListener(this)
         enableMyLocation()
+        getDirections()
+        // draw all polylines.
+        drawAllPolyLines();
+    }
+
+    fun getDirections() {
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        val directionsResponse =
+            GoogleDirectionsAPIHandler().getDirections("The White House", "Capital Hill")
+        path = PolyUtil.decode("<?=$directionsResponse->routes[0]->overview_polyline->points?>")
     }
 
     /**
@@ -154,5 +167,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         return false
     }
 
-
+    /**
+     * Method to draw all poly lines. This will manually draw polylines one by one on the map by calling
+     * addPolyline(PolylineOptions) on a map instance. The parameter passed in is a new PolylineOptions
+     * object which can be configured with details such as line color, line width, clickability, and
+     * a list of coordinates values.
+     */
+    private fun drawAllPolyLines() {
+        // Add a blue Polyline.
+        map.addPolyline(
+            PolylineOptions()
+                .color(Color.RED) // Line color.
+                .addAll(path)
+        ) // all the whole list of lat lng value pairs which is retrieved by calling helper method readEncodedPolyLinePointsFromCSV.
+    }
 }
