@@ -7,27 +7,30 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
 import android.os.Bundle
 import android.os.StrictMode
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
 import com.example.walksolo.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationServices.getFusedLocationProviderClient
 import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.maps.android.PolyUtil
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
-    GoogleMap.OnMarkerClickListener {
+    GoogleMap.OnMarkerClickListener, DestinationDialog.DestinationDialogListener {
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private var permissionDenied = false
@@ -36,6 +39,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private val UPDATE_INTERVAL = (10 * 1000 /* 10 secs */).toLong()
     private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
     private lateinit var path: List<LatLng>
+    private var mLastLocation: Location? = null
+    private var mCurrLocationMarker: Marker? = null
+    private lateinit var destination: String
+    private var destinationInput: Boolean = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,16 +88,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         map.uiSettings.isZoomControlsEnabled = true
         map.setOnMarkerClickListener(this)
         enableMyLocation()
-        getDirections()
-        // draw all polylines.
-        drawAllPolyLines();
+        print("Got here first!")
+        openDestinationDialog()
+        print("Got here!")
     }
 
-    fun getDirections() {
+    fun onLocationChanged(location: Location) {
+        mLastLocation = location
+        mCurrLocationMarker?.remove()
+
+        //Place current location marker
+        val latLng = LatLng(location.latitude, location.longitude)
+        val markerOptions = MarkerOptions()
+        markerOptions.position(latLng)
+        markerOptions.title("Current Position")
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+        mCurrLocationMarker = map.addMarker(markerOptions)
+        //move map camera
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+        map.animateCamera(CameraUpdateFactory.zoomTo(11f))
+    }
+
+    private fun getDirections() {
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val directionsResponse =
-            GoogleDirectionsAPIHandler().getDirections("The White House", "Capital Hill")
+            GoogleDirectionsAPIHandler().getDirections("The White House", destination)
+        print(directionsResponse.toString())
         path = PolyUtil.decode("<?=$directionsResponse->routes[0]->overview_polyline->points?>")
     }
 
@@ -112,6 +137,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                 Manifest.permission.ACCESS_FINE_LOCATION, true
             )
         }
+        fusedLocationClient.lastLocation.addOnSuccessListener(
+            this,
+            OnSuccessListener<Location?> { location -> // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    // Logic to handle location object
+                }
+            })
     }
 
     override fun onRequestPermissionsResult(
@@ -180,5 +212,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
                 .color(Color.RED) // Line color.
                 .addAll(path)
         ) // all the whole list of lat lng value pairs which is retrieved by calling helper method readEncodedPolyLinePointsFromCSV.
+    }
+
+    private fun openDestinationDialog() {
+        val dialog = DestinationDialog()
+        dialog.show(supportFragmentManager, "Destination Dialog")
+    }
+
+    // The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the NoticeDialogFragment.NoticeDialogListener interface
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        // User touched the dialog's positive button
+        val editText = findViewById<EditText>(R.id.destination)
+        destination = editText.text.toString()
+        print(destination)
+        getDirections()
+        // draw polyline.
+        drawAllPolyLines();
+
     }
 }

@@ -8,19 +8,19 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.*
 import android.os.StrictMode.ThreadPolicy
+import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import android.speech.tts.TextToSpeech
 import java.util.*
 
 //import android.bluetooth.BluetoothManager
 //import android.bluetooth.BluetoothAdapter
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener{
     private lateinit var status: TextView
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
@@ -29,8 +29,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     private lateinit var navigateIntent: Intent
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
-    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
+
+    //    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
     private var tts: TextToSpeech? = null
+
 
     companion object {
         private const val REQUEST_ENABLE_BT = 1
@@ -82,7 +84,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         //notifyHazard(VisionsResponseHandler().processResponse(response))
         notifyHazard(result)
         // maybe change to TextToSpeech.QUEUE_ADD
-        tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null,"")
+        tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null, "")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,8 +119,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 showErrorMessage("TTS - The Language not supported!")
             }
-        }
-        else {
+        } else {
             showErrorMessage("TTS - Initilization Failed!")
         }
     }
