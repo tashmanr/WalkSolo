@@ -297,7 +297,6 @@ class BluetoothService(handler: Handler) {
             var buffer: ByteArray = ByteArray(0)
             var bytes: Int
             var newMsg: Boolean = true
-            var numberOfBytes: String
             var bytesToReceive: Int = 0
             var bytesReceived: Int = 0
 
@@ -305,17 +304,23 @@ class BluetoothService(handler: Handler) {
             while (mState == STATE_CONNECTED) {
                 try{
                     if(newMsg){
-                        if(mmInStream!!.available() > 6)
+                        if(mmInStream!!.available() > 5)
                         {
                             try{
                                 // Read from the InputStream.
                                 var data = ByteArray(6)
                                 val received: Int = mmInStream.read(data)
                                 buffer = ByteArray(0)
-                                numberOfBytes = String(data)
-                                bytesToReceive = numberOfBytes.toInt()
-                                bytesReceived = 0
-                                newMsg = false
+                                var response:String = String(data)
+                                if(response == "branch"){
+                                    mHandler?.obtainMessage(Constants.MESSAGE_BRANCHES, 1, -1, buffer)
+                                        ?.sendToTarget()
+                                }
+                                else {
+                                    bytesToReceive = response.toInt()
+                                    bytesReceived = 0
+                                    newMsg = false
+                                }
 
                             }
                             catch (e: IOException) {

@@ -13,6 +13,7 @@ class Constants {
         val MESSAGE_DEVICE_NAME = 4
         val MESSAGE_TOAST = 5
         val MESSAGE_RECEIVED: Int = 6
+        val MESSAGE_BRANCHES: Int = 7
 
 
         const val STATE_CONNECTING: Int = 7

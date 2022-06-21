@@ -68,6 +68,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     // construct a string from the valid bytes in the buffer
                     callVisionAPI(readBuf)
                 }
+                Constants.MESSAGE_BRANCHES -> {
+                    tts!!.speak("branch ahead", TextToSpeech.QUEUE_FLUSH, null, "")
+                }
                 Constants.MESSAGE_TOAST -> {
                     status.text = "not_connected"
                     connected = false
