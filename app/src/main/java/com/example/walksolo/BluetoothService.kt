@@ -298,17 +298,30 @@ class BluetoothService(handler: Handler) {
             var bytes: Int
             var newMsg: Boolean = true
             var numberOfBytes: String
-            var bytesToReceive: Int = 353290//318118
+            var bytesToReceive: Int = 0
             var bytesReceived: Int = 0
 
             // Keep listening to the InputStream while connected
             while (mState == STATE_CONNECTED) {
                 try{
-                    // image size is always 287827
                     if(newMsg){
-                        buffer = ByteArray(0)
-                        bytesReceived = 0
-                        newMsg = false
+                        if(mmInStream!!.available() > 6)
+                        {
+                            try{
+                                // Read from the InputStream.
+                                var data = ByteArray(6)
+                                val received: Int = mmInStream.read(data)
+                                buffer = ByteArray(0)
+                                numberOfBytes = String(data)
+                                bytesToReceive = numberOfBytes.toInt()
+                                bytesReceived = 0
+                                newMsg = false
+
+                            }
+                            catch (e: IOException) {
+                                // no new msg yet
+                            }
+                        }
                     }
                     else{
                         var data = ByteArray(mmInStream!!.available())
@@ -324,31 +337,6 @@ class BluetoothService(handler: Handler) {
                                 ?.sendToTarget()
                         }
                     }
-                    """
-                    if(newMsg){
-                        // get size of picture
-                        var temp = ByteArray(mmInStream!!.available())
-                        if (mmInStream.read(temp) > 0) {
-                            numberOfBytes = String(temp)
-                            bytesToReceive = numberOfBytes.toInt()
-                            newMsg = false
-                        }
-
-                    }
-                    else{
-                        var data = ByteArray(mmInStream!!.available())
-                        val received: Int = mmInStream.read(data)
-
-                        buffer += data
-                        System.arraycopy(data, 0, buffer, bytesReceived, received)
-                        bytesReceived += received
-
-                        if (bytesReceived == bytesToReceive) {
-                            newMsg = true
-                            mHandler?.obtainMessage(Constants.MESSAGE_READ, 1, -1, buffer)
-                                ?.sendToTarget()
-                        }
-                    }"""
                 }catch (e: IOException) {
                     Log.e(TAG, "disconnected", e)
                     connectionLost()
