@@ -5,11 +5,15 @@ import PermissionUtils.isPermissionGranted
 import PermissionUtils.requestPermission
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.StrictMode
+import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -42,8 +46,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     private var mLastLocation: Location? = null
     private var mCurrLocationMarker: Marker? = null
     private lateinit var destination: String
-    private var destinationInput: Boolean = false
-
+    private lateinit var destinationDialog: DestinationDialog
+    private var currentLocation: Location? = null
+    lateinit var locationManager: LocationManager
+    private lateinit var locationByGps: Location
+    private lateinit var locationByNetwork: Location
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +62,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         fusedLocationClient = getFusedLocationProviderClient(this)
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+
     }
 
     // Trigger new location updates at interval
@@ -88,9 +98,77 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         map.uiSettings.isZoomControlsEnabled = true
         map.setOnMarkerClickListener(this)
         enableMyLocation()
-        print("Got here first!")
+        getMyLocation()
         openDestinationDialog()
-        print("Got here!")
+    }
+
+    private fun getMyLocation() {
+        val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+//------------------------------------------------------//
+        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        val gpsLocationListener: LocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                locationByGps = location
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+//------------------------------------------------------//
+        val networkLocationListener: LocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                locationByNetwork = location
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+
+        if (hasGps) {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                0F,
+                gpsLocationListener
+            )
+        }
+//------------------------------------------------------//
+        if (hasNetwork) {
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                5000,
+                0F,
+                networkLocationListener
+            )
+        }
+        val lastKnownLocationByGps =
+            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        lastKnownLocationByGps?.let {
+            locationByGps = lastKnownLocationByGps
+        }
+//------------------------------------------------------//
+        val lastKnownLocationByNetwork =
+            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        lastKnownLocationByNetwork?.let {
+            locationByNetwork = lastKnownLocationByNetwork
+        }
+//------------------------------------------------------//
+        if (locationByGps != null && locationByNetwork != null) {
+            if (locationByGps.accuracy > locationByNetwork!!.accuracy) {
+                currentLocation = locationByGps
+                val latitude = currentLocation!!.latitude
+                val longitude = currentLocation!!.longitude
+                // use latitude and longitude as per your need
+            } else {
+                currentLocation = locationByNetwork
+                val latitude = currentLocation!!.latitude
+                val longitude = currentLocation!!.longitude
+                // use latitude and longitude as per your need
+            }
+        }
+
     }
 
     fun onLocationChanged(location: Location) {
@@ -113,8 +191,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val directionsResponse =
-            GoogleDirectionsAPIHandler().getDirections("The White House", destination)
-        print(directionsResponse.toString())
+            GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
+        print(directionsResponse)
         path = PolyUtil.decode("<?=$directionsResponse->routes[0]->overview_polyline->points?>")
     }
 
@@ -215,8 +293,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun openDestinationDialog() {
-        val dialog = DestinationDialog()
-        dialog.show(supportFragmentManager, "Destination Dialog")
+        destinationDialog = DestinationDialog()
+        destinationDialog.show(supportFragmentManager, "Destination Dialog")
+
     }
 
     // The dialog fragment receives a reference to this Activity through the
@@ -224,8 +303,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     // defined by the NoticeDialogFragment.NoticeDialogListener interface
     override fun onDialogPositiveClick(dialog: DialogFragment) {
         // User touched the dialog's positive button
-        val editText = findViewById<EditText>(R.id.destination)
-        destination = editText.text.toString()
+//        val textEntryView: View =
+//            layoutInflater.inflate(R.layout.dialog_destination, null)
+//        val editText =
+//            textEntryView.findViewById<View>(R.id.destination) as EditText
+//        destination = editText.text.toString()
+        destination = destinationDialog.getDestination()
         print(destination)
         getDirections()
         // draw polyline.

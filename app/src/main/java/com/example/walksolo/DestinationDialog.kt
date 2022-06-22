@@ -5,11 +5,14 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.widget.EditText
 import androidx.fragment.app.DialogFragment
+
 
 class DestinationDialog() : DialogFragment() {
     // Use this instance of the interface to deliver action events
     internal lateinit var listener: DestinationDialogListener
+    private lateinit var destination: String
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -39,19 +42,27 @@ class DestinationDialog() : DialogFragment() {
             val builder = AlertDialog.Builder(activity)
             // Get the layout inflater
             val inflater = requireActivity().layoutInflater;
+            val viewInflated = inflater.inflate(R.layout.dialog_destination, null)
+            val input = viewInflated.findViewById<EditText>(R.id.destination)
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
-            builder.setView(inflater.inflate(R.layout.dialog_destination, null))
+            builder.setView(viewInflated)
             builder.setTitle("Destination Dialog")
             builder.setMessage("Where would you like to go?")
             builder.setPositiveButton(
                 "Start",
-                DialogInterface.OnClickListener { _: DialogInterface, _: Int ->
+                DialogInterface.OnClickListener { dialog: DialogInterface, _: Int ->
+                    dialog.dismiss()
+                    destination = input.text.toString();
                     listener.onDialogPositiveClick(this)
                 }
             )
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
 
+    }
+
+    fun getDestination(): String {
+        return destination
     }
 }
