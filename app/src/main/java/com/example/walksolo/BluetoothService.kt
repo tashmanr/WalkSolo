@@ -299,7 +299,7 @@ class BluetoothService(handler: Handler) {
             var newMsg: Boolean = true
             var bytesToReceive: Int = 0
             var bytesReceived: Int = 0
-
+            var flagMsgType: Int = 0
             // Keep listening to the InputStream while connected
             while (mState == STATE_CONNECTED) {
                 try{
@@ -308,20 +308,25 @@ class BluetoothService(handler: Handler) {
                         {
                             try{
                                 // Read from the InputStream.
-                                var data = ByteArray(6)
+                                var data = ByteArray(8)
                                 val received: Int = mmInStream.read(data)
                                 buffer = ByteArray(0)
                                 var response:String = String(data)
-                                if(response == "branch"){
+                                if(response == "0,branch"){
                                     mHandler?.obtainMessage(Constants.MESSAGE_BRANCHES, 1, -1, buffer)
                                         ?.sendToTarget()
                                 }
-                                else {
-                                    bytesToReceive = response.toInt()
+                                else{
+                                    if(response.get(0).toString() == "1"){
+                                        flagMsgType = 1
+                                    }
+                                    else if(response.get(0).toString() == "2"){
+                                        flagMsgType = 2
+                                    }
+                                    bytesToReceive = response.substring(2).toInt()
                                     bytesReceived = 0
                                     newMsg = false
                                 }
-
                             }
                             catch (e: IOException) {
                                 // no new msg yet
@@ -337,9 +342,17 @@ class BluetoothService(handler: Handler) {
                         bytesReceived += received
 
                         if (bytesReceived == bytesToReceive) {
+                            if(flagMsgType == 1){
+                                mHandler?.obtainMessage(Constants.MESSAGE_READ_ONCE, 1, -1, buffer)
+                                    ?.sendToTarget()
+                            }
+                            else if(flagMsgType == 2){
+                                mHandler?.obtainMessage(Constants.MESSAGE_READ_CONSTANT, 1, -1, buffer)
+                                    ?.sendToTarget()
+                            }
+
                             newMsg = true
-                            mHandler?.obtainMessage(Constants.MESSAGE_READ, 1, -1, buffer)
-                                ?.sendToTarget()
+                            flagMsgType = 0
                         }
                     }
                 }catch (e: IOException) {
@@ -359,8 +372,8 @@ class BluetoothService(handler: Handler) {
                 mmOutStream?.write(buffer)
 
                 // Share the sent message back to the UI Activity
-                mHandler?.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
-                    ?.sendToTarget()
+                //mHandler?.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer)
+                //    ?.sendToTarget()
             } catch (e: IOException) {
                 Log.e(TAG, "Exception during write", e)
             }

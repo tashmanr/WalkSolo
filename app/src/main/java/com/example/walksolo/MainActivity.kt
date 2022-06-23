@@ -62,12 +62,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     showErrorMessage("message sent")
                     showErrorMessage(String(writeBuf))
                 }
-                Constants.MESSAGE_READ -> {
+                //Constants.MESSAGE_READ -> {
+                    // Permission to access the storage is missing. Show rationale and request permission
+                  //  val readBuf = msg.obj as ByteArray
+//                    val path = mImageSaver.saveImage(readBuf)
+                    // construct a string from the valid bytes in the buffer
+                  //  callVisionAPI(readBuf, false)
+            //    }
+                Constants.MESSAGE_READ_ONCE -> {
                     // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
 //                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
                     callVisionAPI(readBuf, false)
+                }
+                Constants.MESSAGE_READ_CONSTANT -> {
+
+                    // Permission to access the storage is missing. Show rationale and request permission
+                    val readBuf = msg.obj as ByteArray
+//                    val path = mImageSaver.saveImage(readBuf)
+                    // construct a string from the valid bytes in the buffer
+                    callVisionAPI(readBuf, true)
                 }
                 Constants.MESSAGE_BRANCHES -> {
                     tts!!.speak("branch ahead", TextToSpeech.QUEUE_FLUSH, null, "")
