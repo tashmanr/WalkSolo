@@ -15,11 +15,15 @@ class Constants {
         val MESSAGE_RECEIVED: Int = 6
         val MESSAGE_BRANCHES: Int = 7
 
+        val MESSAGE_READ_ONCE: Int = 8 //sent one pic
 
-        const val STATE_CONNECTING: Int = 7
-        const val STATE_CONNECTON_FAILED: Int = 8
-        const val STATE_CONNECTED: Int = 9
-        const val STATE_CANNOT_WRITE = 10
+        val MESSAGE_READ_CONSTANT: Int = 9 //loop
+
+
+        const val STATE_CONNECTING: Int = 10
+        const val STATE_CONNECTON_FAILED: Int = 11
+        const val STATE_CONNECTED: Int = 12
+        const val STATE_CANNOT_WRITE = 13
 
         // Key names received from the BluetoothChatService Handler
         val DEVICE_NAME = "device_name"
