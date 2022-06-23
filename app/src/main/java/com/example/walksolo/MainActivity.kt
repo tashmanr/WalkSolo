@@ -11,7 +11,6 @@ import android.os.StrictMode.ThreadPolicy
 import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -21,7 +20,6 @@ import java.util.*
 //import android.bluetooth.BluetoothAdapter
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener {
-    private lateinit var status: TextView
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
     private lateinit var notifyMeButton: Button
@@ -51,7 +49,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                 Constants.MESSAGE_STATE_CHANGE -> {
                     when (msg.arg1) {
                         BluetoothService.STATE_CONNECTED -> {
-                            status.text = "Connected"
+//                            status.text = "Connected"
                             connected = true
                         }
                     }
@@ -74,7 +72,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     tts!!.speak("branch ahead", TextToSpeech.QUEUE_FLUSH, null, "")
                 }
                 Constants.MESSAGE_TOAST -> {
-                    status.text = "not_connected"
+//                    status.text = "not_connected"
                     connected = false
                 }
             }
@@ -105,7 +103,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         findDeviceButton = findViewById(R.id.find_device)
         findDeviceButton.setOnClickListener(this)
         layout = findViewById(R.id.coordinatorLayout)
-        status = findViewById(R.id.status)
         mBluetoothService = BluetoothService(handler)
         enableBluetooth()
         if (bluetoothIsEnabled) {
@@ -145,7 +142,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
-                            status.text = "In if State not connected"
+//                            status.text = "In if State not connected"
                             showErrorMessage("Not Connected")
                         }
                         val send = "1".toByteArray()
@@ -160,7 +157,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
-                            status.text = "In if 2 State not connected"
+//                            status.text = "In if 2 State not connected"
                             showErrorMessage("Not Connected")
                         }
                         val send = "2".toByteArray()
