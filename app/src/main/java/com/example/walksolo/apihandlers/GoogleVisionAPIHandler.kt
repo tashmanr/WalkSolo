@@ -1,4 +1,4 @@
-package com.example.walksolo
+package com.example.walksolo.apihandlers
 
 import android.util.Base64
 import com.example.walksolo.BuildConfig.MAPS_API_KEY

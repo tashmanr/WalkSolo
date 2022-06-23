@@ -1,4 +1,4 @@
-package com.example.walksolo
+package com.example.walksolo.apihandlers
 
 import com.google.api.client.util.ArrayMap
 import com.google.api.services.vision.v1.model.AnnotateImageResponse

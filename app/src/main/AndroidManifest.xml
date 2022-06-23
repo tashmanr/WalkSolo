@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.walksolo">
 
-    <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="true" />
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -27,7 +29,9 @@
         android:roundIcon="@mipmap/ws_ison_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WalkSolo">
-
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

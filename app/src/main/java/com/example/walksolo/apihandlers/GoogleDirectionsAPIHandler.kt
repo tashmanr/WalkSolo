@@ -1,5 +1,6 @@
-package com.example.walksolo
+package com.example.walksolo.apihandlers
 
+import com.example.walksolo.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URL

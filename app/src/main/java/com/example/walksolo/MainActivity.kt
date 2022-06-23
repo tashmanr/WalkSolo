@@ -9,9 +9,15 @@ import android.graphics.Color
 import android.os.*
 import android.os.StrictMode.ThreadPolicy
 import android.speech.tts.TextToSpeech
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import com.example.walksolo.apihandlers.GoogleVisionAPIHandler
+import com.example.walksolo.apihandlers.VisionsResponseHandler
+import com.example.walksolo.settings.SettingsActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
@@ -20,6 +26,7 @@ import java.util.*
 //import android.bluetooth.BluetoothAdapter
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener {
+    private lateinit var toolbar: Toolbar
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
     private lateinit var notifyMeButton: Button
@@ -63,12 +70,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     showErrorMessage(String(writeBuf))
                 }
                 //Constants.MESSAGE_READ -> {
-                    // Permission to access the storage is missing. Show rationale and request permission
-                  //  val readBuf = msg.obj as ByteArray
+                // Permission to access the storage is missing. Show rationale and request permission
+                //  val readBuf = msg.obj as ByteArray
 //                    val path = mImageSaver.saveImage(readBuf)
-                    // construct a string from the valid bytes in the buffer
-                  //  callVisionAPI(readBuf, false)
-            //    }
+                // construct a string from the valid bytes in the buffer
+                //  callVisionAPI(readBuf, false)
+                //    }
                 Constants.MESSAGE_READ_ONCE -> {
                     // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
@@ -102,7 +109,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         val response = GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
         val result = VisionsResponseHandler().processResponse(response, constant)
         if (result != "No blockade") {
-            notifyHazard(result)
+            notifyHazard(result, constant)
             // maybe change to TextToSpeech.QUEUE_ADD
             tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null, "")
         }
@@ -111,6 +118,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
         navigateButton = findViewById(R.id.navigate)
         navigateButton.setOnClickListener(this)
         aroundMeButton = findViewById(R.id.aroundme)
@@ -131,6 +140,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         }
         // TextToSpeech(Context: this, OnInitListener: this)
         tts = TextToSpeech(this, this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.appbar_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity().javaClass))
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     // Required func for initiating text To speech
@@ -272,8 +298,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
 
     //function for showing the incoming hazard message
     @SuppressLint("ShowToast")
-    fun notifyHazard(s: String) {
-        Snackbar.make(layout, "Caution: $s ahead of you!", Snackbar.LENGTH_SHORT)
+    fun notifyHazard(s: String, constant: Boolean) {
+        var message: String = ""
+        message = if (constant) {
+            "Caution: $s ahead of you!"
+        } else {
+            "Here's what's around you: $s"
+        }
+        Snackbar.make(
+            layout, message, Snackbar.LENGTH_SHORT
+        )
             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
             .setActionTextColor(Color.WHITE)
             .setBackgroundTint(Color.BLACK).show()
