@@ -1,4 +1,4 @@
-//package com.example.walksolo
+package com.example.walksolo.permissions//package com.example.walksolo
 //
 //import android.os.Environment
 //

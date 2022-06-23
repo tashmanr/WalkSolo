@@ -1,8 +1,8 @@
 package com.example.walksolo
 
-import PermissionUtils.PermissionDeniedDialog.Companion.newInstance
-import PermissionUtils.isPermissionGranted
-import PermissionUtils.requestPermission
+import com.example.walksolo.permissions.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
+import com.example.walksolo.permissions.PermissionUtils.isPermissionGranted
+import com.example.walksolo.permissions.PermissionUtils.requestPermission
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -13,11 +13,10 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.StrictMode
-import android.view.View
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import com.example.walksolo.apihandlers.GoogleDirectionsAPIHandler
 import com.example.walksolo.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
@@ -191,7 +190,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
         val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val directionsResponse =
-            GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
+//            GoogleDirectionsAPIHandler().getDirections("Kaf Gimel 9 Givatayim", destination)
+        GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
         print(directionsResponse)
         path = PolyUtil.decode("<?=$directionsResponse->routes[0]->overview_polyline->points?>")
     }
