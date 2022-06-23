@@ -303,11 +303,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,
     // defined by the NoticeDialogFragment.NoticeDialogListener interface
     override fun onDialogPositiveClick(dialog: DialogFragment) {
         // User touched the dialog's positive button
-//        val textEntryView: View =
-//            layoutInflater.inflate(R.layout.dialog_destination, null)
-//        val editText =
-//            textEntryView.findViewById<View>(R.id.destination) as EditText
-//        destination = editText.text.toString()
         destination = destinationDialog.getDestination()
         print(destination)
         getDirections()

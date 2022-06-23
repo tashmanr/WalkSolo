@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment
 
 class DestinationDialog() : DialogFragment() {
     // Use this instance of the interface to deliver action events
-    internal lateinit var listener: DestinationDialogListener
+    private lateinit var listener: DestinationDialogListener
     private lateinit var destination: String
 
     /* The activity that creates an instance of this dialog fragment must
@@ -47,8 +47,7 @@ class DestinationDialog() : DialogFragment() {
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
             builder.setView(viewInflated)
-            builder.setTitle("Destination Dialog")
-            builder.setMessage("Where would you like to go?")
+            builder.setTitle("Where would you like to go?")
             builder.setPositiveButton(
                 "Start",
                 DialogInterface.OnClickListener { dialog: DialogInterface, _: Int ->

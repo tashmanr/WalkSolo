@@ -20,7 +20,7 @@ import java.util.*
 //import android.bluetooth.BluetoothManager
 //import android.bluetooth.BluetoothAdapter
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener{
+class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener {
     private lateinit var status: TextView
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
@@ -84,10 +84,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         StrictMode.setThreadPolicy(policy)
         val response = GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
         val result = VisionsResponseHandler().processResponse(response)
-        //notifyHazard(VisionsResponseHandler().processResponse(response))
-        notifyHazard(result)
-        // maybe change to TextToSpeech.QUEUE_ADD
-        tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null, "")
+        if (result != "No blockade") {
+            notifyHazard(result)
+            // maybe change to TextToSpeech.QUEUE_ADD
+            tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null, "")
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
