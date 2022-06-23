@@ -21,7 +21,7 @@
 
         <Button
             android:id="@+id/navigate"
-            android:layout_width="250dp"
+            android:layout_width="300dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="100dip"
@@ -31,7 +31,7 @@
 
         <Button
             android:id="@+id/aroundme"
-            android:layout_width="250dp"
+            android:layout_width="300dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="210dip"
@@ -41,16 +41,16 @@
 
         <Button
             android:id="@+id/notify_me"
-            android:layout_width="250dp"
+            android:layout_width="300dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="320dip"
-            android:contentDescription="Notify Me"
-            android:text="Notify Me"
+            android:contentDescription="Walk With Me"
+            android:text="Walk With Me"
             android:textSize="30dp" />
         <Button
             android:id="@+id/find_device"
-            android:layout_width="250dp"
+            android:layout_width="300dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="430dip"

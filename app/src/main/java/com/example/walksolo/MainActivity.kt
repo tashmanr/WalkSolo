@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     val readBuf = msg.obj as ByteArray
 //                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
-                    callVisionAPI(readBuf)
+                    callVisionAPI(readBuf, false)
                 }
                 Constants.MESSAGE_BRANCHES -> {
                     tts!!.speak("branch ahead", TextToSpeech.QUEUE_FLUSH, null, "")
@@ -79,11 +79,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         }
     }
 
-    fun callVisionAPI(imageArray: ByteArray) {
+    // constant boolean: true if walk with me is on, false if one time request (around me)
+    fun callVisionAPI(imageArray: ByteArray, constant: Boolean) {
         val policy = ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         val response = GoogleVisionAPIHandler().detectLocalizedObjects(imageArray)
-        val result = VisionsResponseHandler().processResponse(response)
+        val result = VisionsResponseHandler().processResponse(response, constant)
         if (result != "No blockade") {
             notifyHazard(result)
             // maybe change to TextToSpeech.QUEUE_ADD
