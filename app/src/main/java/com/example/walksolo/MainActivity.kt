@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
     private lateinit var notifyMeButton: Button
+    private lateinit var findDeviceButton: Button
     private lateinit var layout: View
     private lateinit var navigateIntent: Intent
     private var connected: Boolean = false
@@ -59,7 +60,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     val writeBuf = msg.obj as ByteArray
                     // construct a string from the buffer
                     //"""val writeMessage = String(writeBuf)"""
-                    showErrorMessage("Received Image")
+                    showErrorMessage("message sent")
+                    showErrorMessage(String(writeBuf))
                 }
                 Constants.MESSAGE_READ -> {
                     // Permission to access the storage is missing. Show rationale and request permission
@@ -100,6 +102,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         aroundMeButton.setOnClickListener(this)
         notifyMeButton = findViewById(R.id.notify_me)
         notifyMeButton.setOnClickListener(this)
+        findDeviceButton = findViewById(R.id.find_device)
+        findDeviceButton.setOnClickListener(this)
         layout = findViewById(R.id.coordinatorLayout)
         status = findViewById(R.id.status)
         mBluetoothService = BluetoothService(handler)
@@ -148,9 +152,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                         mBluetoothService?.write(send)
 
                         // TODO check if already connected
-                        //mConnectToDeviceThread = ConnectToDeviceThread()
-                        //mConnectToDeviceThread!!.start()
-                        //mConnectedThread!!.write("Hello".toByteArray())
                     }
                 }
             }
@@ -166,9 +167,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                         mBluetoothService?.write(send)
 
                         // TODO check if already connected
-                        //mConnectToDeviceThread = ConnectToDeviceThread()
-                        //mConnectToDeviceThread!!.start()
-                        //mConnectedThread!!.write("Hello".toByteArray())
+                    }
+                }
+            }
+            R.id.find_device -> {
+                if (bluetoothIsEnabled) {
+                    checkDeviceList()
+                    if (pairedRaspberryPi != null) {
+                        if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
+                            showErrorMessage("Not Connected")
+                        }
+                        val send = "3".toByteArray()
+                        mBluetoothService?.write(send)
+
+                        // TODO check if already connected
+
                     }
                 }
             }
