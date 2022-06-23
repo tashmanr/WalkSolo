@@ -48,6 +48,15 @@
             android:contentDescription="Notify Me"
             android:text="Notify Me"
             android:textSize="30dp" />
+        <Button
+            android:id="@+id/find_device"
+            android:layout_width="216dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="550dip"
+            android:contentDescription="Find Device"
+            android:text="Find Device"
+            android:textSize="30dp" />
         <TextView
             android:id="@+id/status"
             android:layout_width="wrap_content"
