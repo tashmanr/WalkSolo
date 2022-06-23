@@ -4,7 +4,7 @@
     android:layout_height="wrap_content">
     <EditText
         android:id="@+id/destination"
-        android:inputType="text"
+        android:inputType="textNoSuggestions"
         android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
