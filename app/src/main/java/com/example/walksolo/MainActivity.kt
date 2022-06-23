@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     private lateinit var navigateIntent: Intent
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
+    private var walkingWithMe: Boolean = false
 
     //    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
     private var tts: TextToSpeech? = null
@@ -161,10 +162,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
 //                            status.text = "In if 2 State not connected"
                             showErrorMessage("Not Connected")
                         }
-                        val send = "2".toByteArray()
-                        mBluetoothService?.write(send)
+                        if (!walkingWithMe) {
+                            walkingWithMe = true
+                            notifyMeButton.text = "Stop Walking"
+                            notifyMeButton.contentDescription = "Stop Walking"
+                            val send = "2".toByteArray()
+                            mBluetoothService?.write(send)
 
-                        // TODO check if already connected
+                            // TODO check if already connected
+                        } else {
+                            walkingWithMe = false
+                            notifyMeButton.text = "Walk With Me"
+                            notifyMeButton.contentDescription = "Walk With Me"
+                            val send = "4".toByteArray()
+                            mBluetoothService?.write(send)
+                        }
                     }
                 }
             }
