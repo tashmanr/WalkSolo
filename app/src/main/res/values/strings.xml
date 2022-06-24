@@ -6,18 +6,57 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
+    <string name="distance_header">Distance Threshold</string>
+    <string name="hazard_header">Hazard Alert Frequency</string>
+    <string name="timeout_header">Find My Device Timeout</string>
 
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
+    <!-- Distance Preferences -->
+    <string-array name="pref_distance">
+        <item>0.5m</item>
+        <item>1m</item>
+        <item>1.5m</item>
+        <item>2m</item>
+    </string-array>
+    <string-array name="pref_distance_values">
+        <item>50</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+    </string-array>
 
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="settings">Settings</string>
+    <!-- Hazard Preferences -->
+    <string-array name="pref_hazard_frequency">
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>45 seconds</item>
+        <item>1 minute</item>
+        <item>1 minute 30 seconds</item>
+    </string-array>
+    <string-array name="pref_frequency">
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>90</item>
+    </string-array>
+
+    <!-- Timeout Preferences -->
+    <string-array name="pref_how_long_timeout">
+        <item>10 seconds</item>
+        <item>20 seconds</item>
+        <item>30 seconds</item>
+        <item>40 seconds</item>
+        <item>50 seconds</item>
+        <item>1 minute</item>
+    </string-array>
+    <string-array name="pref_duration">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
 </resources>

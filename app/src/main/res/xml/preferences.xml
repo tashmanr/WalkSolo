@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-<Preference
-    android:key="distance_threshold"
-    android:title="Distance Threshold"
-    android:summary="Maximum distance for hazard alerts"
-    android:defaultValue="150cm"
-    />
+    <ListPreference
+        android:defaultValue="150"
+        android:dialogTitle="@string/distance_header"
+        android:entries="@array/pref_distance"
+        android:entryValues="@array/pref_distance_values"
+        android:key="distance_threshold"
+        android:summary="Maximum distance for hazard alerts"
+        android:title="@string/distance_header" />
+    <ListPreference
+        android:defaultValue="5"
+        android:dialogTitle="@string/hazard_header"
+        android:entries="@array/pref_hazard_frequency"
+        android:entryValues="@array/pref_frequency"
+        android:key="hazard_frequency"
+        android:summary="Frequency for hazard alerts"
+        android:title="@string/hazard_header" />
+    <ListPreference
+        android:defaultValue="3"
+        android:dialogTitle="@string/timeout_header"
+        android:entries="@array/pref_how_long_timeout"
+        android:entryValues="@array/pref_duration"
+        android:key="buzzer_timeout"
+        android:summary="How long should the 'find my device' sound play?"
+        android:title="@string/timeout_header" />
 </PreferenceScreen>
