@@ -5,9 +5,11 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.*
 import android.os.StrictMode.ThreadPolicy
+import android.preference.PreferenceManager
 import android.speech.tts.TextToSpeech
 import android.view.Menu
 import android.view.MenuItem
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
     private var walkingWithMe: Boolean = false
+    private lateinit var sharedPreferences: SharedPreferences
 
     //    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
     private var tts: TextToSpeech? = null
@@ -117,6 +120,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         setContentView(R.layout.activity_main)
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -181,6 +185,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                 startActivity(navigateIntent)
             }
             R.id.aroundme -> {
+                var distance_threshold= sharedPreferences.getString("distance_threshold", "150")
+                val request = "1," + distance_threshold
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
@@ -188,7 +194,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
 //                            status.text = "In if State not connected"
                             showErrorMessage("Not Connected")
                         }
-                        val send = "1".toByteArray()
+                        //val send = "1".toByteArray()
+                        val send = request.toByteArray()
                         mBluetoothService?.write(send)
 
                         // TODO check if already connected
@@ -196,6 +203,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                 }
             }
             R.id.notify_me -> {
+                // loop
+
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
@@ -207,7 +216,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                             walkingWithMe = true
                             notifyMeButton.text = "Stop Walking"
                             notifyMeButton.contentDescription = "Stop Walking"
-                            val send = "2".toByteArray()
+                            var alert_frequency = sharedPreferences.getString("hazard_frequency", "5")
+                            var distance_threshold= sharedPreferences.getString("distance_threshold", "150")
+                            val request = "2," + alert_frequency+ "," + distance_threshold
+                            val send = request.toByteArray()
                             mBluetoothService?.write(send)
 
                             // TODO check if already connected
@@ -228,7 +240,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
                             showErrorMessage("Not Connected")
                         }
-                        val send = "3".toByteArray()
+                        var buzzer_timeout = sharedPreferences.getString("buzzer_timeout", "3")
+                        val request = "3," + buzzer_timeout
+                        //val send = "3".toByteArray()
+                        val send = request.toByteArray()
                         mBluetoothService?.write(send)
 
                         // TODO check if already connected
