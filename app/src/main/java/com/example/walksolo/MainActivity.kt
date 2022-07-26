@@ -181,12 +181,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
-                navigateIntent = Intent(this, MapsActivity::class.java)
-                startActivity(navigateIntent)
+                showErrorMessage("Need to fix this part!")
+//                navigateIntent = Intent(this, MapsActivity::class.java)
+//                startActivity(navigateIntent)
             }
             R.id.aroundme -> {
-                var distance_threshold= sharedPreferences.getString("distance_threshold", "150")
-                val request = "1," + distance_threshold
+                val distanceThreshold= sharedPreferences.getString("distance_threshold", "150")
+                val request = "1,$distanceThreshold"
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
@@ -211,17 +212,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
 //                            status.text = "In if 2 State not connected"
                             showErrorMessage("Not Connected")
+                            return
                         }
                         if (!walkingWithMe) {
                             walkingWithMe = true
                             notifyMeButton.text = "Stop Walking"
                             notifyMeButton.contentDescription = "Stop Walking"
-                            var alert_frequency = sharedPreferences.getString("hazard_frequency", "5")
-                            var distance_threshold= sharedPreferences.getString("distance_threshold", "150")
-                            val request = "2," + alert_frequency+ "," + distance_threshold
+                            val alertFrequency = sharedPreferences.getString("hazard_frequency", "5")
+                            val distanceThreshold= sharedPreferences.getString("distance_threshold", "150")
+                            val request = "2,$alertFrequency,$distanceThreshold"
                             val send = request.toByteArray()
                             mBluetoothService?.write(send)
-
                             // TODO check if already connected
                         } else {
                             walkingWithMe = false
@@ -240,8 +241,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
                             showErrorMessage("Not Connected")
                         }
-                        var buzzer_timeout = sharedPreferences.getString("buzzer_timeout", "3")
-                        val request = "3," + buzzer_timeout
+                        val buzzerTimeout = sharedPreferences.getString("buzzer_timeout", "3")
+                        val request = "3,$buzzerTimeout"
                         //val send = "3".toByteArray()
                         val send = request.toByteArray()
                         mBluetoothService?.write(send)
@@ -314,8 +315,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     //function for showing the incoming hazard message
     @SuppressLint("ShowToast")
     fun notifyHazard(s: String, constant: Boolean) {
-        var message: String = ""
-        message = if (constant) {
+        val message = if (constant) {
             "Caution: $s ahead of you!"
         } else {
             "Here's what's around you: $s"
