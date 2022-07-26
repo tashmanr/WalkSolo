@@ -22,43 +22,54 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        tools:ignore="MissingConstraints">
 
         <Button
-            android:id="@+id/navigate"
-            android:layout_width="300dp"
+            android:id="@+id/around_me"
+            android:layout_width="330dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dip"
-            android:contentDescription="Navigate"
-            android:text="Navigate"
-            android:textSize="30dp" />
-
-        <Button
-            android:id="@+id/aroundme"
-            android:layout_width="300dp"
-            android:layout_height="80dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="210dip"
+            android:layout_marginTop="80dip"
             android:contentDescription="Around Me"
             android:text="Around Me"
             android:textSize="30dp" />
 
         <Button
             android:id="@+id/notify_me"
-            android:layout_width="300dp"
+            android:layout_width="330dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="320dip"
+            android:layout_marginTop="180dip"
             android:contentDescription="Walk With Me"
             android:text="Walk With Me"
             android:textSize="30dp" />
+
         <Button
-            android:id="@+id/find_device"
-            android:layout_width="300dp"
+            android:id="@+id/navigate"
+            android:layout_width="330dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="430dip"
+            android:layout_marginTop="280dip"
+            android:contentDescription="Navigate"
+            android:text="Navigate"
+            android:textSize="30dp" />
+        <Button
+            android:id="@+id/set_destination"
+            android:layout_width="330dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="380dip"
+            android:contentDescription="Set Destination"
+            android:text="Set Destination"
+            android:textSize="30dp" />
+
+        <Button
+            android:id="@+id/find_device"
+            android:layout_width="330dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="480dip"
             android:contentDescription="Find Device"
             android:text="Find Device"
             android:textSize="30dp" />

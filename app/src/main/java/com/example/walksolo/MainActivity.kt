@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     private lateinit var aroundMeButton: Button
     private lateinit var notifyMeButton: Button
     private lateinit var findDeviceButton: Button
+    private lateinit var setDestinationButton: Button
     private lateinit var layout: View
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
@@ -155,12 +156,14 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         setSupportActionBar(toolbar)
         navigateButton = findViewById(R.id.navigate)
         navigateButton.setOnClickListener(this)
-        aroundMeButton = findViewById(R.id.aroundme)
+        aroundMeButton = findViewById(R.id.around_me)
         aroundMeButton.setOnClickListener(this)
         notifyMeButton = findViewById(R.id.notify_me)
         notifyMeButton.setOnClickListener(this)
         findDeviceButton = findViewById(R.id.find_device)
         findDeviceButton.setOnClickListener(this)
+        setDestinationButton = findViewById(R.id.set_destination)
+        setDestinationButton.setOnClickListener(this)
         layout = findViewById(R.id.coordinatorLayout)
         mBluetoothService = BluetoothService(handler)
         enableBluetooth()
@@ -216,7 +219,10 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     callDirectionsAPI()
                 }
             }
-            R.id.aroundme -> {
+            R.id.set_destination -> {
+                openDestinationDialog()
+            }
+            R.id.around_me -> {
                 val distanceThreshold = sharedPreferences.getString("distance_threshold", "150")
                 val request = "1,$distanceThreshold"
                 if (bluetoothIsEnabled) {
