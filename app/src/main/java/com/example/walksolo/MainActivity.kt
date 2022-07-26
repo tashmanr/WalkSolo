@@ -27,10 +27,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 
-
-//import android.bluetooth.BluetoothManager
-//import android.bluetooth.BluetoothAdapter
-
 class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogListener,
     View.OnClickListener, TextToSpeech.OnInitListener {
     private lateinit var toolbar: Toolbar
@@ -39,15 +35,12 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     private lateinit var notifyMeButton: Button
     private lateinit var findDeviceButton: Button
     private lateinit var layout: View
-    private lateinit var navigateIntent: Intent
     private var connected: Boolean = false
     private var mBluetoothService: BluetoothService? = null
     private var walkingWithMe: Boolean = false
     private lateinit var sharedPreferences: SharedPreferences
     private var destination: String = ""
     private lateinit var destinationDialog: DestinationDialog
-
-    //    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
     private var tts: TextToSpeech? = null
 
 
