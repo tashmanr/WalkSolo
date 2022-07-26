@@ -17,6 +17,7 @@ import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.DialogFragment
 import com.example.walksolo.apihandlers.DirectionsResponseHandler
 import com.example.walksolo.apihandlers.GoogleDirectionsAPIHandler
 import com.example.walksolo.apihandlers.GoogleVisionAPIHandler
@@ -30,7 +31,8 @@ import java.util.*
 //import android.bluetooth.BluetoothManager
 //import android.bluetooth.BluetoothAdapter
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnInitListener {
+class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogListener,
+    View.OnClickListener, TextToSpeech.OnInitListener {
     private lateinit var toolbar: Toolbar
     private lateinit var navigateButton: Button
     private lateinit var aroundMeButton: Button
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     private var mBluetoothService: BluetoothService? = null
     private var walkingWithMe: Boolean = false
     private lateinit var sharedPreferences: SharedPreferences
+    private var destination: String = ""
+    private lateinit var destinationDialog: DestinationDialog
 
     //    private var mImageSaver: ImageSaver = ImageSaver(this, 0)
     private var tts: TextToSpeech? = null
@@ -53,6 +57,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         var m_bluetoothAdapter: BluetoothAdapter? = null
         lateinit var m_pairedDevices: Set<BluetoothDevice>
         var bluetoothIsEnabled: Boolean = false
+    }
+
+    // The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the NoticeDialogFragment.NoticeDialogListener interface
+    override fun onDialogPositiveClick(dialog: DialogFragment) {
+        // User touched the dialog's positive button
+        destination = destinationDialog.getDestination()
+        callDirectionsAPI()
+    }
+
+    private fun openDestinationDialog() {
+        destinationDialog = DestinationDialog()
+        destinationDialog.show(supportFragmentManager, "Destination Dialog")
+
     }
 
     private val handler = object : Handler(Looper.getMainLooper()) {
@@ -127,7 +146,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         val directionsResponse =
             GoogleDirectionsAPIHandler().getDirections(
                 "Kaf Gimel 9 Givatayim",
-                "Hashalom 70 Tel Aviv"
+                destination
             )
 //            GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
         val nextStep = DirectionsResponseHandler().processResponse(directionsResponse)
@@ -198,7 +217,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
-                callDirectionsAPI()
+                if (destination == "") {
+                    openDestinationDialog()
+                } else {
+                    callDirectionsAPI()
+                }
             }
             R.id.aroundme -> {
                 val distanceThreshold = sharedPreferences.getString("distance_threshold", "150")
