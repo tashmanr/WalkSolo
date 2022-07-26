@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,7 +19,7 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         tools:ignore="MissingConstraints">
@@ -31,9 +30,9 @@
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="80dip"
-            android:contentDescription="Around Me"
-            android:text="Around Me"
-            android:textSize="30dp" />
+            android:contentDescription="@string/around_me"
+            android:text="@string/around_me"
+            android:textSize="30sp" />
 
         <Button
             android:id="@+id/notify_me"
@@ -41,9 +40,9 @@
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="180dip"
-            android:contentDescription="Walk With Me"
-            android:text="Walk With Me"
-            android:textSize="30dp" />
+            android:contentDescription="@string/walk_with_me"
+            android:text="@string/walk_with_me"
+            android:textSize="30sp" />
 
         <Button
             android:id="@+id/navigate"
@@ -51,18 +50,18 @@
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="280dip"
-            android:contentDescription="Navigate"
-            android:text="Navigate"
-            android:textSize="30dp" />
+            android:contentDescription="@string/navigate"
+            android:text="@string/navigate"
+            android:textSize="30sp" />
         <Button
             android:id="@+id/set_destination"
             android:layout_width="330dp"
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="380dip"
-            android:contentDescription="Set Destination"
-            android:text="Set Destination"
-            android:textSize="30dp" />
+            android:contentDescription="@string/set_destination"
+            android:text="@string/set_destination"
+            android:textSize="30sp" />
 
         <Button
             android:id="@+id/find_device"
@@ -70,9 +69,9 @@
             android:layout_height="80dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="480dip"
-            android:contentDescription="Find Device"
-            android:text="Find Device"
-            android:textSize="30dp" />
+            android:contentDescription="@string/find_device"
+            android:text="@string/find_device"
+            android:textSize="30sp" />
 
     </RelativeLayout>
 

@@ -9,6 +9,11 @@
     <string name="distance_header">Distance Threshold</string>
     <string name="hazard_header">Hazard Alert Frequency</string>
     <string name="timeout_header">Find My Device Timeout</string>
+    <string name="walk_with_me">Walk With Me</string>
+    <string name="navigate">Navigate</string>
+    <string name="set_destination">Set Destination</string>
+    <string name="around_me">Around Me</string>
+    <string name="find_device">Find Device</string>
 
     <!-- Distance Preferences -->
     <string-array name="pref_distance">

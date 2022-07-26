@@ -242,7 +242,6 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
             }
             R.id.notify_me -> {
                 // loop
-
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
