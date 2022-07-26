@@ -14,6 +14,7 @@
     <string name="set_destination">Set Destination</string>
     <string name="around_me">Around Me</string>
     <string name="find_device">Find Device</string>
+    <string name="stop_walking">Stop Walking</string>
 
     <!-- Distance Preferences -->
     <string-array name="pref_distance">

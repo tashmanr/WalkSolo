@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -38,6 +39,7 @@ import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
+
 
 class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogListener,
     View.OnClickListener, TextToSpeech.OnInitListener {
@@ -223,7 +225,6 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     callVisionAPI(readBuf, false)
                 }
                 Constants.MESSAGE_READ_CONSTANT -> {
-
                     // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
 //                    val path = mImageSaver.saveImage(readBuf)
@@ -273,6 +274,17 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        val sharedPreferenceChangeListener =
+            OnSharedPreferenceChangeListener { prefs, key ->
+                if (key == "distance_threshold" || key == "hazard_frequency") {
+                    if (walkingWithMe) {
+                        endLoop()
+                        startLoop()
+                    }
+                }
+            }
+        sharedPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
         setContentView(R.layout.activity_main)
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -356,6 +368,28 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         }
     }
 
+    private fun startLoop() {
+        walkingWithMe = true
+        notifyMeButton.text = getString(R.string.stop_walking)
+        notifyMeButton.contentDescription = getString(R.string.stop_walking)
+        val alertFrequency =
+            sharedPreferences.getString("hazard_frequency", "5")
+        val distanceThreshold =
+            sharedPreferences.getString("distance_threshold", "150")
+        val request = "2,$alertFrequency,$distanceThreshold"
+        val send = request.toByteArray()
+        mBluetoothService?.write(send)
+        // TODO check if already connected
+    }
+
+    private fun endLoop() {
+        walkingWithMe = false
+        notifyMeButton.text = getString(R.string.walk_with_me)
+        notifyMeButton.contentDescription = getString(R.string.walk_with_me)
+        val send = "4".toByteArray()
+        mBluetoothService?.write(send)
+    }
+
     //function that waits for a button to be pressed when pressed will execute the following code
     @SuppressLint("MissingPermission", "SetTextI18n")
     override fun onClick(view: View?) {
@@ -415,23 +449,25 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                             return
                         }
                         if (!walkingWithMe) {
-                            walkingWithMe = true
-                            notifyMeButton.text = "Stop Walking"
-                            notifyMeButton.contentDescription = "Stop Walking"
-                            val alertFrequency =
-                                sharedPreferences.getString("hazard_frequency", "5")
-                            val distanceThreshold =
-                                sharedPreferences.getString("distance_threshold", "150")
-                            val request = "2,$alertFrequency,$distanceThreshold"
-                            val send = request.toByteArray()
-                            mBluetoothService?.write(send)
-                            // TODO check if already connected
+                            startLoop()
+//                            walkingWithMe = true
+//                            notifyMeButton.text = "Stop Walking"
+//                            notifyMeButton.contentDescription = "Stop Walking"
+//                            val alertFrequency =
+//                                sharedPreferences.getString("hazard_frequency", "5")
+//                            val distanceThreshold =
+//                                sharedPreferences.getString("distance_threshold", "150")
+//                            val request = "2,$alertFrequency,$distanceThreshold"
+//                            val send = request.toByteArray()
+//                            mBluetoothService?.write(send)
+//                            // TODO check if already connected
                         } else {
-                            walkingWithMe = false
-                            notifyMeButton.text = "Walk With Me"
-                            notifyMeButton.contentDescription = "Walk With Me"
-                            val send = "4".toByteArray()
-                            mBluetoothService?.write(send)
+                            endLoop()
+//                            walkingWithMe = false
+//                            notifyMeButton.text = "Walk With Me"
+//                            notifyMeButton.contentDescription = "Walk With Me"
+//                            val send = "4".toByteArray()
+//                            mBluetoothService?.write(send)
                         }
                     }
                 }
