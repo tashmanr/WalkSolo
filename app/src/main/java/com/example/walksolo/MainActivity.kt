@@ -20,6 +20,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -266,7 +267,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
             nextStep = DirectionsResponseHandler().processResponse(directionsResponse)
         }
         showMessageBanner(nextStep)
-//        tts!!.speak(nextStep, TextToSpeech.QUEUE_ADD, null, "")
+        tts!!.speak(nextStep, TextToSpeech.QUEUE_ADD, null, "")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -297,6 +298,32 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         }
         // TextToSpeech(Context: this, OnInitListener: this)
         tts = TextToSpeech(this, this)
+        val locationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                    // Precise location access granted.
+                }
+                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                    // Only approximate location access granted.
+                }
+                else -> {
+                    // No location access granted.
+                }
+            }
+        }
+        // ...
+
+// Before you perform the actual permission request, check whether your app
+// already has the permissions, and whether your app needs to show a permission
+// rationale dialog. For more details, see Request permissions.
+        locationPermissionRequest.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -458,11 +485,11 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
             // Permission to access the location is missing. Show rationale and request permission
             PermissionUtils.requestPermission(
                 this, LOCATION_PERMISSION_REQUEST_CODE,
-                Manifest.permission.ACCESS_FINE_LOCATION, true
+                Manifest.permission.ACCESS_FINE_LOCATION, false
             )
             PermissionUtils.requestPermission(
                 this, LOCATION_PERMISSION_REQUEST_CODE,
-                Manifest.permission.ACCESS_COARSE_LOCATION, true
+                Manifest.permission.ACCESS_COARSE_LOCATION, false
             )
         }
         fusedLocationClient.lastLocation.addOnSuccessListener(
@@ -478,7 +505,6 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     @SuppressLint("MissingPermission")
     private fun checkDeviceList() {
         m_pairedDevices = m_bluetoothAdapter!!.bondedDevices
-
         if (m_pairedDevices.isNotEmpty()) {
             for (device: BluetoothDevice in m_pairedDevices) {
                 if (device.name.equals("raspberrypi", ignoreCase = true)) {
@@ -505,6 +531,18 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 showMessageBanner("Bluetooth enabling has been canceled")
+            }
+        } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (locationPermissionDenied) {
+                    showMessageBanner("Please enable location permissions")
+                    locationPermissionDenied = false
+
+                } else {
+                    showMessageBanner("Location permissions have been enabled")
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                showMessageBanner("Enabling location permission has been canceled")
             }
         }
     }
