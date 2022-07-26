@@ -11,18 +11,24 @@ import android.os.*
 import android.os.StrictMode.ThreadPolicy
 import android.preference.PreferenceManager
 import android.speech.tts.TextToSpeech
+import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.example.walksolo.apihandlers.GoogleDirectionsAPIHandler
 import com.example.walksolo.apihandlers.GoogleVisionAPIHandler
 import com.example.walksolo.apihandlers.VisionsResponseHandler
 import com.example.walksolo.settings.SettingsActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
+
 
 //import android.bluetooth.BluetoothManager
 //import android.bluetooth.BluetoothAdapter
@@ -69,8 +75,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     val writeBuf = msg.obj as ByteArray
                     // construct a string from the buffer
                     //"""val writeMessage = String(writeBuf)"""
-                    showErrorMessage("message sent")
-                    showErrorMessage(String(writeBuf))
+                    showMessageBanner("message sent")
+                    showMessageBanner(String(writeBuf))
                 }
                 //Constants.MESSAGE_READ -> {
                 // Permission to access the storage is missing. Show rationale and request permission
@@ -116,6 +122,43 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
             // maybe change to TextToSpeech.QUEUE_ADD
             tts!!.speak(result, TextToSpeech.QUEUE_FLUSH, null, "")
         }
+    }
+
+    private fun callDirectionsAPI() {
+        val policy = ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        val directionsResponse =
+            GoogleDirectionsAPIHandler().getDirections(
+                "Kaf Gimel 9 Givatayim",
+                "Hashalom 70 Tel Aviv"
+            )
+//            GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
+        var nextStep = ""
+        try {
+            // get JSONObject from JSON file
+            val obj = JSONObject(directionsResponse!!)
+            // fetch JSONArray named routes
+            val routes: JSONArray = obj.getJSONArray("routes")
+            // get JSONArray named legs
+            val legs: JSONArray = routes.getJSONObject(0).getJSONArray("legs")
+            // get JSONArray named steps
+            val steps: JSONArray = legs.getJSONObject(0).getJSONArray("steps")
+            var counter = 0
+            // get the next step in the navigation
+            while (nextStep == "" && counter < steps.length()) {
+                nextStep =
+                    Html.fromHtml(steps.getJSONObject(counter).getString("html_instructions"))
+                        .toString()
+                counter++
+            }
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        if (nextStep == "") {
+            nextStep = "Error, re-input your destination"
+        }
+        showMessageBanner(nextStep)
+        tts!!.speak(nextStep, TextToSpeech.QUEUE_ADD, null, "")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,10 +212,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
             val result = tts!!.setLanguage(Locale.US)
 
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                showErrorMessage("TTS - The Language not supported!")
+                showMessageBanner("TTS - The Language not supported!")
             }
         } else {
-            showErrorMessage("TTS - Initilization Failed!")
+            showMessageBanner("TTS - Initilization Failed!")
         }
     }
 
@@ -181,19 +224,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
-                showErrorMessage("Need to fix this part!")
-//                navigateIntent = Intent(this, MapsActivity::class.java)
-//                startActivity(navigateIntent)
+                showMessageBanner("Need to fix this part!")
+                callDirectionsAPI()
             }
             R.id.aroundme -> {
-                val distanceThreshold= sharedPreferences.getString("distance_threshold", "150")
+                val distanceThreshold = sharedPreferences.getString("distance_threshold", "150")
                 val request = "1,$distanceThreshold"
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
 //                            status.text = "In if State not connected"
-                            showErrorMessage("Not Connected")
+                            showMessageBanner("Not Connected")
                         }
                         //val send = "1".toByteArray()
                         val send = request.toByteArray()
@@ -211,15 +253,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
 //                            status.text = "In if 2 State not connected"
-                            showErrorMessage("Not Connected")
+                            showMessageBanner("Not Connected")
                             return
                         }
                         if (!walkingWithMe) {
                             walkingWithMe = true
                             notifyMeButton.text = "Stop Walking"
                             notifyMeButton.contentDescription = "Stop Walking"
-                            val alertFrequency = sharedPreferences.getString("hazard_frequency", "5")
-                            val distanceThreshold= sharedPreferences.getString("distance_threshold", "150")
+                            val alertFrequency =
+                                sharedPreferences.getString("hazard_frequency", "5")
+                            val distanceThreshold =
+                                sharedPreferences.getString("distance_threshold", "150")
                             val request = "2,$alertFrequency,$distanceThreshold"
                             val send = request.toByteArray()
                             mBluetoothService?.write(send)
@@ -239,7 +283,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
-                            showErrorMessage("Not Connected")
+                            showMessageBanner("Not Connected")
                         }
                         val buzzerTimeout = sharedPreferences.getString("buzzer_timeout", "3")
                         val request = "3,$buzzerTimeout"
@@ -259,7 +303,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     private fun enableBluetooth() {
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (m_bluetoothAdapter == null) {
-            showErrorMessage("this device doesn't support bluetooth")
+            showMessageBanner("this device doesn't support bluetooth")
             return
         }
         if (!m_bluetoothAdapter!!.isEnabled) {
@@ -282,7 +326,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                 }
             }
         } else {
-            showErrorMessage("no paired devices found")
+            showMessageBanner("no paired devices found")
             return
         }
     }
@@ -294,22 +338,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
             if (resultCode == Activity.RESULT_OK) {
                 if (m_bluetoothAdapter!!.isEnabled) {
                     bluetoothIsEnabled = true
-                    showErrorMessage("Bluetooth has been enabled")
+                    showMessageBanner("Bluetooth has been enabled")
                 } else {
-                    showErrorMessage("Bluetooth has been disabled")
+                    showMessageBanner("Bluetooth has been disabled")
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                showErrorMessage("Bluetooth enabling has been canceled")
+                showMessageBanner("Bluetooth enabling has been canceled")
             }
         }
     }
 
-    //function for showing the appropriate error message depending upon the error
+    //function for showing a message banner at the bottom of the screen
     @SuppressLint("ShowToast")
-    fun showErrorMessage(s: String) {
+    fun showMessageBanner(s: String, color: Int = Color.GRAY) {
         Snackbar.make(layout, s, Snackbar.LENGTH_SHORT)
             .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-            .setBackgroundTint(Color.GRAY).show()
+            .setBackgroundTint(color).show()
     }
 
     //function for showing the incoming hazard message
@@ -320,11 +364,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
         } else {
             "Here's what's around you: $s"
         }
-        Snackbar.make(
-            layout, message, Snackbar.LENGTH_SHORT
-        )
-            .setAnimationMode(BaseTransientBottomBar.ANIMATION_MODE_FADE)
-            .setActionTextColor(Color.WHITE)
-            .setBackgroundTint(Color.BLACK).show()
+        showMessageBanner(message, Color.BLACK)
     }
 }
