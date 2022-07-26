@@ -11,22 +11,19 @@ import android.os.*
 import android.os.StrictMode.ThreadPolicy
 import android.preference.PreferenceManager
 import android.speech.tts.TextToSpeech
-import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.example.walksolo.apihandlers.DirectionsResponseHandler
 import com.example.walksolo.apihandlers.GoogleDirectionsAPIHandler
 import com.example.walksolo.apihandlers.GoogleVisionAPIHandler
 import com.example.walksolo.apihandlers.VisionsResponseHandler
 import com.example.walksolo.settings.SettingsActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.*
 
 
@@ -133,30 +130,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
                 "Hashalom 70 Tel Aviv"
             )
 //            GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
-        var nextStep = ""
-        try {
-            // get JSONObject from JSON file
-            val obj = JSONObject(directionsResponse!!)
-            // fetch JSONArray named routes
-            val routes: JSONArray = obj.getJSONArray("routes")
-            // get JSONArray named legs
-            val legs: JSONArray = routes.getJSONObject(0).getJSONArray("legs")
-            // get JSONArray named steps
-            val steps: JSONArray = legs.getJSONObject(0).getJSONArray("steps")
-            var counter = 0
-            // get the next step in the navigation
-            while (nextStep == "" && counter < steps.length()) {
-                nextStep =
-                    Html.fromHtml(steps.getJSONObject(counter).getString("html_instructions"))
-                        .toString()
-                counter++
-            }
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-        if (nextStep == "") {
-            nextStep = "Error, re-input your destination"
-        }
+        val nextStep = DirectionsResponseHandler().processResponse(directionsResponse)
         showMessageBanner(nextStep)
         tts!!.speak(nextStep, TextToSpeech.QUEUE_ADD, null, "")
     }
@@ -224,7 +198,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, TextToSpeech.OnI
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
-                showMessageBanner("Need to fix this part!")
                 callDirectionsAPI()
             }
             R.id.aroundme -> {
