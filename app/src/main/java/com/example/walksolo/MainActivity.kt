@@ -1,12 +1,17 @@
 package com.example.walksolo
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.*
 import android.os.StrictMode.ThreadPolicy
 import android.preference.PreferenceManager
@@ -15,14 +20,21 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.example.walksolo.apihandlers.DirectionsResponseHandler
 import com.example.walksolo.apihandlers.GoogleDirectionsAPIHandler
 import com.example.walksolo.apihandlers.GoogleVisionAPIHandler
 import com.example.walksolo.apihandlers.VisionsResponseHandler
+import com.example.walksolo.permissions.PermissionUtils
 import com.example.walksolo.settings.SettingsActivity
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
@@ -40,9 +52,17 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     private var mBluetoothService: BluetoothService? = null
     private var walkingWithMe: Boolean = false
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var currentLocation: Location
     private var destination: String = ""
     private lateinit var destinationDialog: DestinationDialog
     private var tts: TextToSpeech? = null
+    private lateinit var locationManager: LocationManager
+    private var locationRequest: LocationRequest? = null
+    private lateinit var locationByGps: Location
+    private lateinit var locationByNetwork: Location
+    private var locationPermissionDenied: Boolean = false
+    private var locationEnabled: Boolean = false
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
 
     companion object {
@@ -51,6 +71,9 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         var m_bluetoothAdapter: BluetoothAdapter? = null
         lateinit var m_pairedDevices: Set<BluetoothDevice>
         var bluetoothIsEnabled: Boolean = false
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private var hasGps: Boolean = false
+        private var hasNetwork: Boolean = false
     }
 
     // The dialog fragment receives a reference to this Activity through the
@@ -66,6 +89,103 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         destinationDialog = DestinationDialog()
         destinationDialog.show(supportFragmentManager, "Destination Dialog")
 
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLocation() {
+        hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        val gpsLocationListener: LocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                locationByGps = location
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+        val networkLocationListener: LocationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                locationByNetwork = location
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+        if (hasGps) {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                0F,
+                gpsLocationListener
+            )
+        }
+        val lastKnownLocationByGps =
+            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        lastKnownLocationByGps?.let { locationByGps = lastKnownLocationByGps }
+        if (hasNetwork) {
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                5000,
+                0F,
+                networkLocationListener
+            )
+        }
+        val lastKnownLocationByNetwork =
+            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        lastKnownLocationByNetwork?.let { locationByNetwork = lastKnownLocationByNetwork }
+//------------------------------------------------------//
+        currentLocation = if (locationByGps.accuracy > locationByNetwork.accuracy) {
+            locationByGps
+        } else {
+            locationByNetwork
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            return
+        }
+        if (PermissionUtils.isPermissionGranted(
+                permissions,
+                grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) && PermissionUtils.isPermissionGranted(
+                permissions,
+                grantResults,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        ) {
+            // Enable the my location layer if the permission has been granted.
+            enableLocation()
+        } else {
+            // Permission was denied. Display an error message
+            // Display the missing permission error dialog when the fragments resume.
+            locationPermissionDenied = true
+        }
+    }
+
+    override fun onResumeFragments() {
+        super.onResumeFragments()
+        if (locationPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError()
+            locationPermissionDenied = false
+        }
+    }
+
+    /**
+     * Displays a dialog with error message explaining that the location permission is missing.
+     */
+    private fun showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog.newInstance(false)
+            .show(supportFragmentManager, "dialog")
     }
 
     private val handler = object : Handler(Looper.getMainLooper()) {
@@ -135,15 +255,17 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     }
 
     private fun callDirectionsAPI() {
-        val policy = ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
-        val directionsResponse =
-            GoogleDirectionsAPIHandler().getDirections(
-                "Kaf Gimel 9 Givatayim",
+        var nextStep = "Please enable your location to continue"
+        if (locationEnabled) {
+//            getLocation()
+            val policy = ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+            val directionsResponse = GoogleDirectionsAPIHandler().getDirections(
+                currentLocation.latitude.toString() + "," + currentLocation.longitude.toString(),
                 destination
             )
-//            GoogleDirectionsAPIHandler().getDirections(currentLocation?.latitude.toString() + "," + currentLocation?.longitude.toString(), destination)
-        val nextStep = DirectionsResponseHandler().processResponse(directionsResponse)
+            nextStep = DirectionsResponseHandler().processResponse(directionsResponse)
+        }
         showMessageBanner(nextStep)
         tts!!.speak(nextStep, TextToSpeech.QUEUE_ADD, null, "")
     }
@@ -176,6 +298,32 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         }
         // TextToSpeech(Context: this, OnInitListener: this)
         tts = TextToSpeech(this, this)
+        val locationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                    // Precise location access granted.
+                }
+                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                    // Only approximate location access granted.
+                }
+                else -> {
+                    // No location access granted.
+                }
+            }
+        }
+        // ...
+
+// Before you perform the actual permission request, check whether your app
+// already has the permissions, and whether your app needs to show a permission
+// rationale dialog. For more details, see Request permissions.
+        locationPermissionRequest.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -204,7 +352,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                 showMessageBanner("TTS - The Language not supported!")
             }
         } else {
-            showMessageBanner("TTS - Initilization Failed!")
+            showMessageBanner("TTS - Initialization Failed!")
         }
     }
 
@@ -213,6 +361,22 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.navigate -> {
+                if (!locationEnabled) {
+                    // Create the location request to start receiving updates
+                    locationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                    // Create LocationSettingsRequest object using location request
+                    val builder = LocationSettingsRequest.Builder()
+                    locationRequest?.let { builder.addLocationRequest(it) }
+                    val locationSettingsRequest = builder.build()
+                    // Check whether location settings are satisfied
+                    // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
+                    val settingsClient = LocationServices.getSettingsClient(this)
+                    settingsClient.checkLocationSettings(locationSettingsRequest)
+                    fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+                    locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+                    enableLocation()
+                }
+                getLocation()
                 if (destination == "") {
                     openDestinationDialog()
                 } else {
@@ -309,10 +473,38 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     }
 
     @SuppressLint("MissingPermission")
+    private fun enableLocation() {
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        ) {
+            locationEnabled = true
+        } else {
+            // Permission to access the location is missing. Show rationale and request permission
+            PermissionUtils.requestPermission(
+                this, LOCATION_PERMISSION_REQUEST_CODE,
+                Manifest.permission.ACCESS_FINE_LOCATION, false
+            )
+            PermissionUtils.requestPermission(
+                this, LOCATION_PERMISSION_REQUEST_CODE,
+                Manifest.permission.ACCESS_COARSE_LOCATION, false
+            )
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener(
+            this
+        ) { location -> // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                // Logic to handle location object
+                showMessageBanner("Error: Please ensure location permissions are enabled")
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     private fun checkDeviceList() {
         m_pairedDevices = m_bluetoothAdapter!!.bondedDevices
-
-        if (!m_pairedDevices.isEmpty()) {
+        if (m_pairedDevices.isNotEmpty()) {
             for (device: BluetoothDevice in m_pairedDevices) {
                 if (device.name.equals("raspberrypi", ignoreCase = true)) {
                     pairedRaspberryPi = device
@@ -338,6 +530,18 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 showMessageBanner("Bluetooth enabling has been canceled")
+            }
+        } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (locationPermissionDenied) {
+                    showMessageBanner("Please enable location permissions")
+                    locationPermissionDenied = false
+
+                } else {
+                    showMessageBanner("Location permissions have been enabled")
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                showMessageBanner("Enabling location permission has been canceled")
             }
         }
     }
