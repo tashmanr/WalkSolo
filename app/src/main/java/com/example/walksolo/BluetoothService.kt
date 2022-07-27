@@ -143,7 +143,7 @@ class BluetoothService(handler: Handler) {
     }
 
     /**
-     * Write to the ConnectedThread in an unsynchronized manner
+     * Write to the ConnectedThread in an un-synchronized manner
      * @param out The bytes to write
      * *
      * @see ConnectedThread.write
@@ -156,7 +156,7 @@ class BluetoothService(handler: Handler) {
             if (mState != STATE_CONNECTED) return
             r = mConnectedThread
         }
-        // Perform the write unsynchronized
+        // Perform the write un-synchronized
         r?.write(out)
     }
 
@@ -308,19 +308,19 @@ class BluetoothService(handler: Handler) {
                         {
                             try{
                                 // Read from the InputStream.
-                                var data = ByteArray(8)
+                                val data = ByteArray(8)
                                 val received: Int = mmInStream.read(data)
                                 buffer = ByteArray(0)
-                                var response:String = String(data)
+                                val response:String = String(data)
                                 if(response == "0,branch"){
                                     mHandler?.obtainMessage(Constants.MESSAGE_BRANCHES, 1, -1, buffer)
                                         ?.sendToTarget()
                                 }
                                 else{
-                                    if(response.get(0).toString() == "1"){
+                                    if(response[0].toString() == "1"){
                                         flagMsgType = 1
                                     }
-                                    else if(response.get(0).toString() == "2"){
+                                    else if(response[0].toString() == "2"){
                                         flagMsgType = 2
                                     }
                                     bytesToReceive = response.substring(2).toInt()
@@ -334,7 +334,7 @@ class BluetoothService(handler: Handler) {
                         }
                     }
                     else{
-                        var data = ByteArray(mmInStream!!.available())
+                        val data = ByteArray(mmInStream!!.available())
                         val received: Int = mmInStream.read(data)
 
                         buffer += data
