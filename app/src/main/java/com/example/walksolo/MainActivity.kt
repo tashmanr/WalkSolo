@@ -354,7 +354,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
                             messageBannerHandler.showMessageBanner("Not Connected")
                         }
-                        val buzzerTimeout = sharedPreferences.getString("buzzer_timeout", "3")
+                        val buzzerTimeout = sharedPreferences.getString("buzzer_timeout", "20")
                         val request = "3,$buzzerTimeout"
                         //val send = "3".toByteArray()
                         val send = request.toByteArray()
