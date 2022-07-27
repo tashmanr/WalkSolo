@@ -233,7 +233,8 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
             sharedPreferences.getString("hazard_frequency", "5")
         val distanceThreshold =
             sharedPreferences.getString("distance_threshold", "150")
-        val request = "2,$alertFrequency,$distanceThreshold"
+        val branchDistance = sharedPreferences.getString("branch_distance_threshold","100")
+        val request = "2,$alertFrequency,$distanceThreshold,$branchDistance"
         val send = request.toByteArray()
         mBluetoothService?.write(send)
         // TODO check if already connected
