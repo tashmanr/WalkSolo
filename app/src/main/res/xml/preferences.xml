@@ -17,7 +17,7 @@
         android:summary="Frequency for hazard alerts"
         android:title="@string/hazard_header" />
     <ListPreference
-        android:defaultValue="3"
+        android:defaultValue="20"
         android:dialogTitle="@string/timeout_header"
         android:entries="@array/pref_how_long_timeout"
         android:entryValues="@array/pref_duration"
