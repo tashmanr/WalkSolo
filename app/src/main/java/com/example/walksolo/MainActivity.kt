@@ -83,45 +83,26 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                 Constants.MESSAGE_STATE_CHANGE -> {
                     when (msg.arg1) {
                         BluetoothService.STATE_CONNECTED -> {
-//                            status.text = "Connected"
                             connected = true
                         }
                     }
                 }
-                Constants.MESSAGE_WRITE -> {
-//                    val writeBuf = msg.obj as ByteArray
-                    // construct a string from the buffer
-                    //"""val writeMessage = String(writeBuf)"""
-//                    messageReporter.report("message sent")
-//                    messageReporter.report(String(writeBuf))
-                }
-                //Constants.MESSAGE_READ -> {
-                // Permission to access the storage is missing. Show rationale and request permission
-                //  val readBuf = msg.obj as ByteArray
-//                    val path = mImageSaver.saveImage(readBuf)
-                // construct a string from the valid bytes in the buffer
-                //  onImageReceived(readBuf, false)
-                //    }
                 Constants.MESSAGE_READ_ONCE -> {
                     // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
-//                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
                     onImageReceived(readBuf, false)
                 }
                 Constants.MESSAGE_READ_CONSTANT -> {
                     // Permission to access the storage is missing. Show rationale and request permission
                     val readBuf = msg.obj as ByteArray
-//                    val path = mImageSaver.saveImage(readBuf)
                     // construct a string from the valid bytes in the buffer
                     onImageReceived(readBuf, true)
                 }
                 Constants.MESSAGE_BRANCHES -> {
                     messageReporter.report("branch ahead", flush = true)
-//                    tts!!.speak("branch ahead", TextToSpeech.QUEUE_FLUSH, null, "")
                 }
                 Constants.MESSAGE_TOAST -> {
-//                    status.text = "not_connected"
                     connected = false
                 }
             }
@@ -165,7 +146,6 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
 
             }
         }
-        // TextToSpeech(Context: this, OnInitListener: this)
         tts = TextToSpeech(this, this)
         messageReporter = MessageReporter(layout, tts!!)
         val locationPermissionRequest = registerForActivityResult(
@@ -252,22 +232,15 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     fun onImageReceived(imageArray: ByteArray, constant: Boolean) {
         val result = VisionHandler().callVisionAPI(imageArray, constant)
         if (result != "No blockade") {
-//            messageReporter.notifyHazard(result, constant)
             messageReporter.report(result, true, constant)
 
-            // maybe change to TextToSpeech.QUEUE_ADD
-//            tts!!.speak(result, TextToSpeech.QUEUE_ADD, null, "")
-//            messageReporter.announceMessage(result, false)
         }
     }
 
     private fun onNavigate() {
         val result =
             DirectionsHandler().callDirectionsAPI(locationEnabled, currentLocation, destination)
-//        messageReporter.showMessageBanner(result)
         messageReporter.report(result)
-//        messageReporter.announceMessage(result, false)
-//        tts!!.speak(result, TextToSpeech.QUEUE_ADD, null, "")
     }
 
     //function that waits for a button to be pressed when pressed will execute the following code
@@ -306,47 +279,27 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
-//                            status.text = "In if State not connected"
                             messageReporter.report("Bluetooth Not Connected")
                         }
-                        //val send = "1".toByteArray()
                         val send = request.toByteArray()
                         mBluetoothService?.write(send)
 
-                        // TODO check if already connected
                     }
                 }
             }
             R.id.notify_me -> {
-                // loop
+                // loop to get notifications untill stopped by user
                 if (bluetoothIsEnabled) {
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
-//                            status.text = "In if 2 State not connected"
                             messageReporter.report("Bluetooth Not Connected")
                             return
                         }
                         if (!walkingWithMe) {
                             startLoop()
-//                            walkingWithMe = true
-//                            notifyMeButton.text = "Stop Walking"
-//                            notifyMeButton.contentDescription = "Stop Walking"
-//                            val alertFrequency =
-//                                sharedPreferences.getString("hazard_frequency", "5")
-//                            val distanceThreshold =
-//                                sharedPreferences.getString("distance_threshold", "150")
-//                            val request = "2,$alertFrequency,$distanceThreshold"
-//                            val send = request.toByteArray()
-//                            mBluetoothService?.write(send)
-//                            // TODO check if already connected
                         } else {
                             endLoop()
-//                            walkingWithMe = false
-//                            notifyMeButton.text = "Walk With Me"
-//                            notifyMeButton.contentDescription = "Walk With Me"
-//                            val send = "4".toByteArray()
-//                            mBluetoothService?.write(send)
                         }
                     }
                 }
@@ -360,11 +313,8 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                         }
                         val buzzerTimeout = sharedPreferences.getString("buzzer_timeout", "20")
                         val request = "3,$buzzerTimeout"
-                        //val send = "3".toByteArray()
                         val send = request.toByteArray()
                         mBluetoothService?.write(send)
-
-                        // TODO check if already connected
 
                     }
                 }
@@ -563,7 +513,11 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     // defined by the NoticeDialogFragment.NoticeDialogListener interface
     override fun onDialogPositiveClick(dialog: DialogFragment) {
         // User touched the dialog's positive button
-        destination = destinationDialog.getDestination()
+        val tmpDest = destinationDialog.getDestination()
+        if (destination == tmpDest){
+            return
+        }
+        destination = tmpDest
         onNavigate()
     }
 
