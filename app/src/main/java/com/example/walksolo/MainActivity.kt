@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     private var locationPermissionDenied: Boolean = false
     private var locationEnabled: Boolean = false
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var messageBannerHandler: MessageBannerHandler
+    private lateinit var messageReporter: MessageReporter
 
     companion object {
         private const val REQUEST_ENABLE_BT = 1
@@ -89,11 +89,11 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     }
                 }
                 Constants.MESSAGE_WRITE -> {
-                    val writeBuf = msg.obj as ByteArray
+//                    val writeBuf = msg.obj as ByteArray
                     // construct a string from the buffer
                     //"""val writeMessage = String(writeBuf)"""
-                    messageBannerHandler.showMessageBanner("message sent")
-                    messageBannerHandler.showMessageBanner(String(writeBuf))
+//                    messageReporter.report("message sent")
+//                    messageReporter.report(String(writeBuf))
                 }
                 //Constants.MESSAGE_READ -> {
                 // Permission to access the storage is missing. Show rationale and request permission
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     onImageReceived(readBuf, true)
                 }
                 Constants.MESSAGE_BRANCHES -> {
-                    messageBannerHandler.announceMessage("branch ahead", flush = true)
+                    messageReporter.report("branch ahead", flush = true)
 //                    tts!!.speak("branch ahead", TextToSpeech.QUEUE_FLUSH, null, "")
                 }
                 Constants.MESSAGE_TOAST -> {
@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         }
         // TextToSpeech(Context: this, OnInitListener: this)
         tts = TextToSpeech(this, this)
-        messageBannerHandler = MessageBannerHandler(layout, tts!!)
+        messageReporter = MessageReporter(layout, tts!!)
         val locationPermissionRequest = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -218,10 +218,10 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         if (status == TextToSpeech.SUCCESS) {
             val result = tts!!.setLanguage(Locale.US)
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                messageBannerHandler.showMessageBanner("TTS - The Language not supported!")
+                messageReporter.showMessageBanner("TTS - The Language not supported!")
             }
         } else {
-            messageBannerHandler.showMessageBanner("TTS - Initialization Failed!")
+            messageReporter.showMessageBanner("TTS - Initialization Failed!")
         }
     }
 
@@ -252,18 +252,21 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     fun onImageReceived(imageArray: ByteArray, constant: Boolean) {
         val result = VisionHandler().callVisionAPI(imageArray, constant)
         if (result != "No blockade") {
-            messageBannerHandler.notifyHazard(result, constant)
+//            messageReporter.notifyHazard(result, constant)
+            messageReporter.report(result, true, constant)
+
             // maybe change to TextToSpeech.QUEUE_ADD
 //            tts!!.speak(result, TextToSpeech.QUEUE_ADD, null, "")
-            messageBannerHandler.announceMessage(result, false)
+//            messageReporter.announceMessage(result, false)
         }
     }
 
     private fun onNavigate() {
         val result =
             DirectionsHandler().callDirectionsAPI(locationEnabled, currentLocation, destination)
-        messageBannerHandler.showMessageBanner(result)
-        messageBannerHandler.announceMessage(result, false)
+//        messageReporter.showMessageBanner(result)
+        messageReporter.report(result)
+//        messageReporter.announceMessage(result, false)
 //        tts!!.speak(result, TextToSpeech.QUEUE_ADD, null, "")
     }
 
@@ -304,7 +307,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
 //                            status.text = "In if State not connected"
-                            messageBannerHandler.showMessageBanner("Not Connected")
+                            messageReporter.report("Bluetooth Not Connected")
                         }
                         //val send = "1".toByteArray()
                         val send = request.toByteArray()
@@ -321,7 +324,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
 //                            status.text = "In if 2 State not connected"
-                            messageBannerHandler.showMessageBanner("Not Connected")
+                            messageReporter.report("Bluetooth Not Connected")
                             return
                         }
                         if (!walkingWithMe) {
@@ -353,7 +356,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                     checkDeviceList()
                     if (pairedRaspberryPi != null) {
                         if (mBluetoothService?.getState() != BluetoothService.STATE_CONNECTED) {
-                            messageBannerHandler.showMessageBanner("Not Connected")
+                            messageReporter.report("Bluetooth Not Connected")
                         }
                         val buzzerTimeout = sharedPreferences.getString("buzzer_timeout", "20")
                         val request = "3,$buzzerTimeout"
@@ -373,7 +376,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     private fun enableBluetooth() {
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (m_bluetoothAdapter == null) {
-            messageBannerHandler.showMessageBanner("this device doesn't support bluetooth")
+            messageReporter.report("this device doesn't support bluetooth")
             return
         }
         if (!m_bluetoothAdapter!!.isEnabled) {
@@ -395,7 +398,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
                 }
             }
         } else {
-            messageBannerHandler.showMessageBanner("no paired devices found")
+            messageReporter.report("no paired devices found")
             return
         }
     }
@@ -424,7 +427,7 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
         ) { location -> // Got last known location. In some rare situations this can be null.
             if (location != null) {
                 // Logic to handle location object
-                messageBannerHandler.showMessageBanner("Error: Please ensure location permissions are enabled")
+                messageReporter.report("Error: Please ensure location permissions are enabled")
             }
         }
     }
@@ -533,24 +536,24 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
             if (resultCode == Activity.RESULT_OK) {
                 if (m_bluetoothAdapter!!.isEnabled) {
                     bluetoothIsEnabled = true
-                    messageBannerHandler.showMessageBanner("Bluetooth has been enabled")
+                    messageReporter.report("Bluetooth has been enabled")
                 } else {
-                    messageBannerHandler.showMessageBanner("Bluetooth has been disabled")
+                    messageReporter.report("Bluetooth has been disabled")
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                messageBannerHandler.showMessageBanner("Bluetooth enabling has been canceled")
+                messageReporter.report("Bluetooth enabling has been canceled")
             }
         } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (locationPermissionDenied) {
-                    messageBannerHandler.showMessageBanner("Please enable location permissions")
+                    messageReporter.report("Please enable location permissions")
                     locationPermissionDenied = false
 
                 } else {
-                    messageBannerHandler.showMessageBanner("Location permissions have been enabled")
+                    messageReporter.report("Location permissions have been enabled")
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                messageBannerHandler.showMessageBanner("Enabling location permission has been canceled")
+                messageReporter.report("Enabling location permission has been canceled")
             }
         }
     }
