@@ -6,7 +6,8 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- Preference Titles -->
-    <string name="distance_header">Distance Threshold</string>
+    <string name="distance_header">Hazard Distance Threshold</string>
+    <string name="branch_distance_header">Branch Distance Threshold</string>
     <string name="hazard_header">Hazard Alert Frequency</string>
     <string name="timeout_header">Find My Device Timeout</string>
     <string name="walk_with_me">Walk With Me</string>
@@ -28,6 +29,19 @@
         <item>100</item>
         <item>150</item>
         <item>200</item>
+    </string-array>
+    <!-- Branch Distance Preferences -->
+    <string-array name="pref_branch_distance">
+        <item>0.5m</item>
+        <item>1m</item>
+        <item>2m</item>
+        <item>3m</item>
+    </string-array>
+    <string-array name="pref_branch_distance_values">
+        <item>50</item>
+        <item>100</item>
+        <item>200</item>
+        <item>300</item>
     </string-array>
 
     <!-- Hazard Preferences -->

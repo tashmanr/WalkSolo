@@ -9,6 +9,14 @@
         android:summary="Maximum distance for hazard alerts"
         android:title="@string/distance_header" />
     <ListPreference
+        android:defaultValue="100"
+        android:dialogTitle="@string/branch_distance_header"
+        android:entries="@array/pref_branch_distance"
+        android:entryValues="@array/pref_branch_distance_values"
+        android:key="branch_distance_threshold"
+        android:summary="Maximum distance for branch alerts"
+        android:title="@string/branch_distance_header" />
+    <ListPreference
         android:defaultValue="5"
         android:dialogTitle="@string/hazard_header"
         android:entries="@array/pref_hazard_frequency"
