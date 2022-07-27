@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 
-
+/** DestinationDialog class, inherits DialogFragment */
 class DestinationDialog() : DialogFragment() {
     // Use this instance of the interface to deliver action events
     private lateinit var listener: DestinationDialogListener
@@ -61,6 +61,7 @@ class DestinationDialog() : DialogFragment() {
 
     }
 
+    /** Function to return the destination once it was inputted */
     fun getDestination(): String {
         return destination
     }

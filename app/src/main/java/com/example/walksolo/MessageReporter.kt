@@ -7,9 +7,11 @@ import android.view.View
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 
+/** Class for reporting the messages through TextToSpeech */
 class MessageReporter(private val layout: View, private var tts: TextToSpeech) {
 
-    //function for showing a message banner at the bottom of the screen
+    /** Function for showing a message banner at the bottom of the screen
+     * only called if TTS isn't working */
     @SuppressLint("ShowToast")
     fun showMessageBanner(s: String, color: Int = Color.GRAY) {
         Snackbar.make(layout, s, Snackbar.LENGTH_SHORT)
@@ -17,6 +19,11 @@ class MessageReporter(private val layout: View, private var tts: TextToSpeech) {
             .setBackgroundTint(color).show()
     }
 
+    /** Function to pass reports from main activity
+     * isHazard boolean -> if message being passed is from image recognition
+     * constant boolean -> if hazard is from around_me or walk_with_me
+     * flush boolean -> if message is urgent (branches ahead)
+     * */
     fun report(
         s: String,
         isHazard: Boolean = false,
@@ -34,6 +41,7 @@ class MessageReporter(private val layout: View, private var tts: TextToSpeech) {
         announceMessage(message, flush)
     }
 
+    /** Function to announce the message through TTS */
     private fun announceMessage(message: String, flush: Boolean = false) {
         if (flush) {
             tts.speak(message, TextToSpeech.QUEUE_FLUSH, null, "")

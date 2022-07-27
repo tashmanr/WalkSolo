@@ -570,7 +570,6 @@ class MainActivity : AppCompatActivity(), DestinationDialog.DestinationDialogLis
     private fun openDestinationDialog() {
         destinationDialog = DestinationDialog()
         destinationDialog.show(supportFragmentManager, "Destination Dialog")
-
     }
 
 }

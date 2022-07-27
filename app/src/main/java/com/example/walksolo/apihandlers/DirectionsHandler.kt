@@ -7,8 +7,10 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-
+/** Class to handle calls to GoogleDirectionsAPIHandler and process the response received */
 class DirectionsHandler {
+    /** Function to process the response that was received in order to get the first step in the
+     * directions from current location */
     private fun processResponse(response: String?): String {
         var nextStep = ""
         try {
@@ -38,6 +40,7 @@ class DirectionsHandler {
         return nextStep
     }
 
+    /** Function to call GoogleDirectionsAPIHandler & return the result once it was processed */
     fun callDirectionsAPI(locationEnabled: Boolean, origin: Location, destination: String): String {
         var nextStep = "Please enable your location to continue"
         if (locationEnabled) {

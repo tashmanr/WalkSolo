@@ -9,24 +9,29 @@ import com.google.api.services.vision.v1.VisionRequestInitializer
 import com.google.api.services.vision.v1.model.*
 import java.io.IOException
 
-
+/** Class to make the calls to the Google Vision API */
 class GoogleVisionAPIHandler {
-    fun detectLocalizedObjects(imageArray: ByteArray):BatchAnnotateImagesResponse {
+
+    /** Function to create and send the request to the API */
+    fun detectLocalizedObjects(imageArray: ByteArray): BatchAnnotateImagesResponse {
         try {
+            // create vision builder
             val visionBuilder = Vision.Builder(
                 NetHttpTransport(),
                 AndroidJsonFactory(),
                 null
             ).setApplicationName("WalkSolo")
-
             visionBuilder.setVisionRequestInitializer(
                 VisionRequestInitializer()
             )
             val vision = visionBuilder.build()
+            // create input image
             val inputImage = Image().setContent(Base64.encodeToString(imageArray, Base64.DEFAULT))
+            // configure feature type and list
             val desiredFeature = Feature().setType("OBJECT_LOCALIZATION").setMaxResults(100)
             val featuresList: ArrayList<Feature> = ArrayList()
             featuresList.add(desiredFeature)
+            // create request
             val request = AnnotateImageRequest().setImage(inputImage).setFeatures(featuresList)
             val batchRequest = BatchAnnotateImagesRequest().setRequests(listOf(request))
             val annotate: Vision.Images.Annotate =
