@@ -23,7 +23,6 @@ class VisionHandler {
                 if ((objectAnnotations as List<*>).size >= 1) {
                     // if constantly getting notified, only send one
                     if (constant) {
-                        //TODO: for now return first one, later add logic to get biggest blockade
                         return (objectAnnotations.first() as ArrayMap<*, *>)["name"].toString()
                     }
                     // else if one time request, send all objects that were recognized
