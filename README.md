@@ -23,4 +23,18 @@ The WalkSolo system is our solution to help enable independence for the visually
 - 2 HC-SR04 sonars
 - Breadboard
 
+
+## Pi Requirements:
+- Python3
+- PyBluez module
+- Picamera module
+
 Link to the raspberryPi code: https://github.com/LolaSi/WalkSoloPi
+
+## In order to start up the WalkSolo device:
+- First time use:
+  - modify /etc/systemd/system/dbus-org.bluez.service changing ExecStart=/usr/lib/bluetooth/bluetoothd into ExecStart=/usr/lib/bluetooth/bluetoothd -C
+  - sudo sdptool add SP
+  - systemctl daemon-reload
+  - service bluetooth restart
+- run sudo python runService.py
