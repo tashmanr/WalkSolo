@@ -12,7 +12,7 @@ The WalkSolo system is our solution to help enable independence for the visually
 - Integration with Google Directions API
 
 ## Android Requirements:
-- API 30 or higher
+- Target API 30
 
 ## Hardware Requirements:
 - RaspberryPi
