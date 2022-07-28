@@ -1,6 +1,9 @@
 # WalkSolo 
 by [Lola Sirota](https://github.com/LolaSi) & [Rebecca Tashman](https://github.com/tashmanr)
 
+[Watch our demo](https://youtu.be/FM5iu6QRGuI)
+
+
 The WalkSolo system is our solution to help enable independence for the visually impaired. The system allows the user to receive live updates regarding their surroundings. When using the WalkSolo device and the WalkSolo android app, the user is able to receive the warnings of incoming obstacles through their device.
 
 
